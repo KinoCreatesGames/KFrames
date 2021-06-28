@@ -1,0 +1,19 @@
+{
+  "name": "luna-plugin",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@lunatechs/lunatea-napkin": "^1.5.1"
+  },
+  "dependencies": {
+    "lix": "^15.9.1"
+  },
+  "scripts": {
+    "build": "haxe compile.hxml",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon --watch src -e hx,hxml,xml --exec haxe --times --connect 7010 compile.hxml"
+  },
+  "execMap": {
+    "hxml": "haxe",
+    "hx": "haxe"
+  }
+}

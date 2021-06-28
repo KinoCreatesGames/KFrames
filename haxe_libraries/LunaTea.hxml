@@ -1,0 +1,6 @@
+# @install: lix --silent download "haxelib:/LunaTea#1.1.1" into LunaTea/1.1.1/haxelib
+-lib hxnodejs
+-lib jsfps
+-lib pixijs
+-cp ${HAXE_LIBCACHE}/LunaTea/1.1.1/haxelib/src/
+-D LunaTea=1.1.1

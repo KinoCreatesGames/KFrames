@@ -27,5 +27,8 @@
 			"defaultWrap": "onePerLineAfterFirst"
 		},
 		"maxLineLength": 80
-	}
+	},
+	"indentation": {
+		"character": "  "
+}
 }

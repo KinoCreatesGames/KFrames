@@ -1,0 +1,31 @@
+
+-lib LunaTea
+-lib toy-box
+
+-cp src
+
+-D js-es=6
+
+# Enable/Disable console.log -- tracing with the below line
+# --no-traces
+
+-dce full
+
+# Static Code Analysis For Removing  Unnecessary Code
+-D analyzer-optimize
+
+--main kdinodata.Main
+
+
+--macro macros.MacroTools.includeJsLib("./src/kdinodata/Params.js")
+
+--each
+--next
+-js dist/KDinoData.js
+
+--next
+-D compileMV
+-js dist/KDinoDataMV.js
+
+
+

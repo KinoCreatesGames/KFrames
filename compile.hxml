@@ -36,8 +36,8 @@ kframes.hxml
 --next
 kdinodata.hxml
 
-# --next
-# lunalog.hxml
+--next
+kmsg.hxml
 
 # --next 
 # lunavnsave.hxml

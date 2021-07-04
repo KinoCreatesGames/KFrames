@@ -55,7 +55,7 @@ SOFTWARE
     }
   }
 
-  class kdinodata_Main {
+  class KCDino {
     static main() {
       let _this = $plugins;
       let _g = [];
@@ -67,7 +67,7 @@ SOFTWARE
           _g.push(v);
         }
       }
-      kdinodata_Main.Data = [
+      KCDino.Data = [
         {
           Description: "An early stage in the evolution of sauropods.",
           Name: "Aardonyx",
@@ -3364,11 +3364,18 @@ SOFTWARE
         },
       ];
     }
+    static randomFact() {
+      let dino = KCDino.Data[Math.floor(Math.random() * KCDino.Data.length)];
+      return "" + dino.Name + " : " + dino.Description;
+    }
   }
+
+  $hx_exports["KCDino"] = KCDino;
 
   {
   }
-  kdinodata_Main.main();
+  KCDino.listener = new PIXI.utils.EventEmitter();
+  KCDino.main();
 })(
   typeof exports != "undefined"
     ? exports

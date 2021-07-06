@@ -91,7 +91,6 @@ class KFrameSprite extends rm.core.Sprite {
     var row = Math.floor(frameNumber / columns);
     var x = (frameWidth * ((frameNumber % columns) - 1)).clampf(0, 3000000);
     var y = (frameHeight * row);
-    trace(columns, frameWidth, frameNumber, x, y);
     this.setFrame(x, y, frameWidth, frameHeight);
   }
 

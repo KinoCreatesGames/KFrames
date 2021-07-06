@@ -2,7 +2,7 @@
  *
  *  KFrames.js
  * 
- *  Build Date: 7/4/2021
+ *  Build Date: 7/6/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -65,36 +65,6 @@ SOFTWARE
 
   EReg.__name__ = true;
   Math.__name__ = true;
-  class Std {
-    static string(s) {
-      return js_Boot.__string_rec(s, "");
-    }
-  }
-
-  Std.__name__ = true;
-  class haxe_Log {
-    static formatOutput(v, infos) {
-      let str = Std.string(v);
-      if (infos == null) {
-        return str;
-      }
-      let pstr = infos.fileName + ":" + infos.lineNumber;
-      if (infos.customParams != null) {
-        let _g = 0;
-        let _g1 = infos.customParams;
-        while (_g < _g1.length) str += ", " + Std.string(_g1[_g++]);
-      }
-      return pstr + ": " + str;
-    }
-    static trace(v, infos) {
-      let str = haxe_Log.formatOutput(v, infos);
-      if (typeof console != "undefined" && console.log != null) {
-        console.log(str);
-      }
-    }
-  }
-
-  haxe_Log.__name__ = true;
   class haxe_ds_StringMap {
     constructor() {
       this.h = Object.create(null);
@@ -275,19 +245,15 @@ SOFTWARE
     }
     setCurrentFrame(frameNumber) {
       let columns = Math.floor(this.bitmap.width / this.frameWidth);
-      let x = Math.min(
-        Math.max(this.frameWidth * ((frameNumber % columns) - 1), 0),
-        3000000
+      this.setFrame(
+        Math.min(
+          Math.max(this.frameWidth * ((frameNumber % columns) - 1), 0),
+          3000000
+        ),
+        this.frameHeight * Math.floor(frameNumber / columns),
+        this.frameWidth,
+        this.frameHeight
       );
-      let y = this.frameHeight * Math.floor(frameNumber / columns);
-      haxe_Log.trace(columns, {
-        fileName: "src/kframes/KFrameSprite.hx",
-        lineNumber: 94,
-        className: "kframes.KFrameSprite",
-        methodName: "setCurrentFrame",
-        customParams: [this.frameWidth, frameNumber, x, y],
-      });
-      this.setFrame(x, y, this.frameWidth, this.frameHeight);
     }
     setFrameWidth(width) {
       this.frameWidth = width;
@@ -348,15 +314,7 @@ SOFTWARE
           _g.push(v);
         }
       }
-      let params = _g[0].parameters;
       KCFrames.Params = {};
-      haxe_Log.trace(KCFrames.Params, {
-        fileName: "src/kframes/Main.hx",
-        lineNumber: 21,
-        className: "kframes.Main",
-        methodName: "main",
-        customParams: [params],
-      });
     }
     static params() {
       return KCFrames.Params;

@@ -17,8 +17,6 @@ class Main {
       ~/<KCFrames>/ig.match(plugin.description))[0];
     var params = plugin.parameters;
     Params = {};
-
-    trace(Params, params);
   }
 
   public static function params() {

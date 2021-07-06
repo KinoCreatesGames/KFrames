@@ -39,8 +39,8 @@ kdinodata.hxml
 --next
 kmsg.hxml
 
-# --next 
-# lunavnsave.hxml
+--next 
+kcredits.hxml
 
 # --next
 # lunavnload.hxml

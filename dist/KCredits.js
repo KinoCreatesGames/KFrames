@@ -202,19 +202,36 @@ SOFTWARE
     create() {
       super.create();
       this.createCharacter();
+      this.createTitle();
     }
     createCharacter() {
       if (window.hasOwnProperty("KCFrames")) {
         console.log(
-          "src/kcredits/KCustomCreditsScene.hx:28:",
+          "src/kcredits/KCustomCreditsScene.hx:36:",
           "KFrames Available"
         );
-        let character = KCFrames.createSprite("sprootshoot", 51, 103);
-        character.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7]);
-        character.playAnimation("walk", true);
-        character.setFPS(18);
-        KCFrames.addToScene(character);
+        this.character = KCFrames.createSprite("sprootshoot", 51, 103);
+        this.character.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7]);
+        this.character.addAnimation("idle", [16, 17, 18, 19, 20, 21, 22, 23]);
+        this.character.playAnimation("walk", true);
+        this.character.setFPS(18);
+        KCFrames.addToScene(this.character);
       }
+    }
+    createTitle() {
+      this.titleText = new PIXI.Text("Credits", {
+        align: "center",
+        fill: 16777215,
+        fontSize: 24,
+      });
+      this.titleText.x = Graphics.width / 2 - this.titleText.width / 2;
+      this.addChild(this.titleText);
+    }
+    centerX() {
+      return Graphics.width / 2;
+    }
+    centerY() {
+      return Graphics.height / 2;
     }
   }
 
@@ -275,12 +292,12 @@ SOFTWARE
           this.frameWait = this.frameAmount;
           if (this.animations != null) {
             let frames = this.animations.h[this.currentAnimName];
-            this.frameIndex++;
             if (this.frameIndex == frames.length && !this.looping) {
               this.isPlaying = false;
             }
             this.frameIndex %= frames.length;
             this.setCurrentFrame(frames[this.frameIndex]);
+            this.frameIndex++;
           }
         } else {
           this.frameWait--;
@@ -291,7 +308,7 @@ SOFTWARE
       let columns = Math.floor(this.bitmap.width / this.frameWidth);
       this.setFrame(
         Math.min(
-          Math.max(this.frameWidth * ((frameNumber % columns) - 1), 0),
+          Math.max(this.frameWidth * (frameNumber % columns), 0),
           3000000
         ),
         this.frameHeight * Math.floor(frameNumber / columns),

@@ -231,12 +231,12 @@ SOFTWARE
           this.frameWait = this.frameAmount;
           if (this.animations != null) {
             let frames = this.animations.h[this.currentAnimName];
-            this.frameIndex++;
             if (this.frameIndex == frames.length && !this.looping) {
               this.isPlaying = false;
             }
             this.frameIndex %= frames.length;
             this.setCurrentFrame(frames[this.frameIndex]);
+            this.frameIndex++;
           }
         } else {
           this.frameWait--;
@@ -247,7 +247,7 @@ SOFTWARE
       let columns = Math.floor(this.bitmap.width / this.frameWidth);
       this.setFrame(
         Math.min(
-          Math.max(this.frameWidth * ((frameNumber % columns) - 1), 0),
+          Math.max(this.frameWidth * (frameNumber % columns), 0),
           3000000
         ),
         this.frameHeight * Math.floor(frameNumber / columns),

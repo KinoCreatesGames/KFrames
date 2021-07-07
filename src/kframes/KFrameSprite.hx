@@ -69,7 +69,6 @@ class KFrameSprite extends rm.core.Sprite {
         this.frameWait = this.frameAmount;
         if (this.animations != null) {
           var frames = this.animations.get(currentAnimName);
-          this.frameIndex++;
 
           if (this.frameIndex == frames.length && !looping) {
             isPlaying = false;
@@ -78,6 +77,7 @@ class KFrameSprite extends rm.core.Sprite {
 
           var frameNumber = frames[this.frameIndex];
           this.setCurrentFrame(frameNumber);
+          this.frameIndex++;
         }
       } else {
         frameWait--;
@@ -89,7 +89,7 @@ class KFrameSprite extends rm.core.Sprite {
     var columns = Math.floor(bitmap.width / frameWidth);
     var rows = Math.ceil(bitmap.height / frameHeight);
     var row = Math.floor(frameNumber / columns);
-    var x = (frameWidth * ((frameNumber % columns) - 1)).clampf(0, 3000000);
+    var x = (frameWidth * ((frameNumber % columns))).clampf(0, 3000000);
     var y = (frameHeight * row);
     this.setFrame(x, y, frameWidth, frameHeight);
   }

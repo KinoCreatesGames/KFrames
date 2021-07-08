@@ -2,7 +2,7 @@
  *
  *  KCredits.js
  * 
- *  Build Date: 7/6/2021
+ *  Build Date: 7/8/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -60,6 +60,9 @@ SOFTWARE
 
   EReg.__name__ = true;
   Math.__name__ = true;
+  function core_MathExt_lerp(start, end, amount) {
+    return start + (end - start) * amount;
+  }
   class haxe_ds_StringMap {
     constructor() {
       this.h = Object.create(null);
@@ -195,28 +198,67 @@ SOFTWARE
   class KCustomCreditsScene extends Scene_Base {
     constructor() {
       super();
+      this.delay = 300;
     }
     initialize() {
       super.initialize();
     }
     create() {
       super.create();
-      this.createCharacter();
+      this.createBackground();
+      this.createContainer();
+      this.createCharacters();
       this.createTitle();
+      this.createCredits();
+      this.createFin();
     }
-    createCharacter() {
+    createBackground() {
+      let backgroundColor = new Sprite();
+      let _gthis = this;
+      backgroundColor.bitmap = new Bitmap(Graphics.width, Graphics.height);
+      backgroundColor.bitmap.fillRect(
+        0,
+        0,
+        Graphics.width,
+        Graphics.height,
+        "#89c0f3"
+      );
+      let backgroundImage = ImageManager.loadPicture(
+        "Tower_No-BG_816x624Scroll2"
+      );
+      this.background = new TilingSprite(backgroundImage);
+      backgroundImage.addLoadListener(function (bitmap) {
+        _gthis.background.bitmap = bitmap;
+        _gthis.background.move(0, 0, bitmap.width, bitmap.height);
+      });
+      this.addChild(this.background);
+    }
+    createCharacters() {
       if (window.hasOwnProperty("KCFrames")) {
         console.log(
-          "src/kcredits/KCustomCreditsScene.hx:36:",
+          "src/kcredits/KCustomCreditsScene.hx:69:",
           "KFrames Available"
         );
-        this.character = KCFrames.createSprite("sprootshoot", 51, 103);
-        this.character.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7]);
-        this.character.addAnimation("idle", [16, 17, 18, 19, 20, 21, 22, 23]);
-        this.character.playAnimation("walk", true);
-        this.character.setFPS(18);
-        KCFrames.addToScene(this.character);
+        this.yula = KCFrames.createSprite("Yula_Walk-Idle_51x103", 51, 103);
+        this.yula.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7]);
+        this.yula.addAnimation("idle", [16, 17, 18, 19, 20, 21, 22, 23]);
+        this.yula.playAnimation("walk", true);
+        this.yula.setFPS(18);
+        this.haley = KCFrames.createSprite("Haley_Walk-Idle_51x103", 51, 103);
+        this.haley.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7]);
+        this.haley.playAnimation("walk", true);
+        this.haley.setFPS(18);
+        this.yula.y = 554 - this.yula.height;
+        this.haley.y = 554 - this.haley.height;
+        this.yula.x = Graphics.width / 2;
+        this.haley.x = this.yula.x - this.haley.width - 20;
+        this.addChild(this.yula);
+        this.addChild(this.haley);
       }
+    }
+    createContainer() {
+      this.container = new PIXI.Graphics();
+      this.addChild(this.container);
     }
     createTitle() {
       this.titleText = new PIXI.Text("Credits", {
@@ -225,13 +267,74 @@ SOFTWARE
         fontSize: 24,
       });
       this.titleText.x = Graphics.width / 2 - this.titleText.width / 2;
-      this.addChild(this.titleText);
+      this.container.addChild(this.titleText);
+    }
+    createCredits() {
+      this.creditText = new PIXI.Text(
+        [
+          "Art",
+          "Amysaurus - @Amysaurus121 - Pixel Artist",
+          "Nio Kasgami - @kasgami - Concept Artist",
+          "Audio",
+          "JDSherbert - @JDSherbert_ - Musician & Audio Engineer",
+          "Voice Acting",
+          "Amysaurus - @Amysaurus121",
+          "Kino - @EISKino",
+          "Programming",
+          "Kino  - @EISKino - Tools Programmer",
+          "inc0der - Tools Programmer",
+          "U.K.L - @U_K_L_- Gameplay Programmer",
+        ].join("\n"),
+        { align: "center", fill: 16777215, lineHeight: 48, fontSize: 24 }
+      );
+      this.creditText.x = Graphics.width / 2 - this.creditText.width / 2;
+      this.creditText.y += 40;
+      this.container.addChild(this.creditText);
+    }
+    createFin() {
+      this.finText = new PIXI.Text("The End", {
+        fill: 16777215,
+        fontSize: 32,
+        align: "center",
+      });
+      this.finText.x = Graphics.width / 2 - this.finText.width / 2;
+      this.finText.y = Graphics.height / 2 - this.finText.height / 2;
+      this.finText.alpha = 0;
+      this.addChild(this.finText);
+    }
+    update() {
+      super.update();
+      this.updateCreditScreen();
+    }
+    updateCreditScreen() {
+      this.background.origin.x += 0.64;
+      this.updateCreditScroll();
+      this.updateCreditFin();
+    }
+    updateCreditScroll() {
+      if (this.delay > 0) {
+        this.delay--;
+      }
+      if (this.delay <= 0) {
+        this.container.y -= 1;
+      }
+    }
+    updateCreditFin() {
+      let screenPosition = this.creditText.toGlobal(
+        new PIXI.Point(this.creditText.x, this.creditText.y)
+      );
+      if (15 + this.creditText.height + screenPosition.y < 0) {
+        this.finText.alpha = core_MathExt_lerp(this.finText.alpha, 1.1, 0.005);
+      }
     }
     centerX() {
       return Graphics.width / 2;
     }
     centerY() {
       return Graphics.height / 2;
+    }
+    secondsToFrames(seconds) {
+      return seconds * 60;
     }
   }
 

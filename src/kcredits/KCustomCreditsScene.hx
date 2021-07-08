@@ -1,5 +1,7 @@
 package kcredits;
 
+import rm.core.TouchInput;
+import rm.core.Input;
 import rm.core.TilingSprite;
 import rm.core.Bitmap;
 import rm.managers.ImageManager;
@@ -28,6 +30,7 @@ class KCustomCreditsScene extends Scene_Base {
   public var creditText:Text;
   public var finText:Text;
   public var background:TilingSprite;
+  public var startFade:Bool;
 
   public function new() {
     super();
@@ -40,6 +43,7 @@ class KCustomCreditsScene extends Scene_Base {
 
   override public function create() {
     super.create();
+    this.startFade = false;
     createBackground();
     createContainer();
     createCharacters();
@@ -66,7 +70,6 @@ class KCustomCreditsScene extends Scene_Base {
     // Creates a character assuming KFrames Exists
     var hasKFrames = Fn.hasProperty(Browser.window, 'KCFrames');
     if (hasKFrames) {
-      trace('KFrames Available');
       yula = KFrame.createSprite('Yula_Walk-Idle_51x103', 51, 103);
       yula.addAnimation('walk', [0, 1, 2, 3, 4, 5, 6, 7]);
       yula.addAnimation('idle', [16, 17, 18, 19, 20, 21, 22, 23]);
@@ -145,6 +148,7 @@ class KCustomCreditsScene extends Scene_Base {
     this.background.origin.x += 0.64;
     this.updateCreditScroll();
     this.updateCreditFin();
+    this.updateButtonPress();
   }
 
   public function updateCreditScroll() {
@@ -165,6 +169,19 @@ class KCustomCreditsScene extends Scene_Base {
     if (((padding + this.creditText.height) + screenPosition.y) < 0) {
       // Show Fin via fade In
       this.finText.alpha = lerp(this.finText.alpha, 1.1, 0.005);
+    }
+  }
+
+  public function updateButtonPress() {
+    if (this.finText.alpha > .90
+      && (Input.isTriggered('ok') || Input.isTriggered('cancel')
+        || TouchInput.isTriggered())
+      && !this.startFade) {
+      this.startFade = true;
+      this.startFadeOut(120, false);
+    }
+    if (this._fadeDuration <= 0 && this.startFade) {
+      this.popScene();
     }
   }
 

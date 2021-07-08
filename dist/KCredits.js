@@ -205,6 +205,7 @@ SOFTWARE
     }
     create() {
       super.create();
+      this.startFade = false;
       this.createBackground();
       this.createContainer();
       this.createCharacters();
@@ -235,10 +236,6 @@ SOFTWARE
     }
     createCharacters() {
       if (window.hasOwnProperty("KCFrames")) {
-        console.log(
-          "src/kcredits/KCustomCreditsScene.hx:69:",
-          "KFrames Available"
-        );
         this.yula = KCFrames.createSprite("Yula_Walk-Idle_51x103", 51, 103);
         this.yula.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7]);
         this.yula.addAnimation("idle", [16, 17, 18, 19, 20, 21, 22, 23]);
@@ -310,6 +307,7 @@ SOFTWARE
       this.background.origin.x += 0.64;
       this.updateCreditScroll();
       this.updateCreditFin();
+      this.updateButtonPress();
     }
     updateCreditScroll() {
       if (this.delay > 0) {
@@ -325,6 +323,21 @@ SOFTWARE
       );
       if (15 + this.creditText.height + screenPosition.y < 0) {
         this.finText.alpha = core_MathExt_lerp(this.finText.alpha, 1.1, 0.005);
+      }
+    }
+    updateButtonPress() {
+      if (
+        this.finText.alpha > 0.9 &&
+        (Input.isTriggered("ok") ||
+          Input.isTriggered("cancel") ||
+          TouchInput.isTriggered()) &&
+        !this.startFade
+      ) {
+        this.startFade = true;
+        this.startFadeOut(120, false);
+      }
+      if (this._fadeDuration <= 0 && this.startFade) {
+        this.popScene();
       }
     }
     centerX() {

@@ -2,7 +2,7 @@
  *
  *  KCredits.js
  * 
- *  Build Date: 7/8/2021
+ *  Build Date: 7/9/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -279,7 +279,7 @@ SOFTWARE
           "Kino - @EISKino",
           "Programming",
           "Kino  - @EISKino - Tools Programmer",
-          "inc0der - Tools Programmer",
+          "inc0der - @inc0der - Tools Programmer",
           "U.K.L - @U_K_L_- Gameplay Programmer",
         ].join("\n"),
         { align: "center", fill: 16777215, lineHeight: 48, fontSize: 24 }

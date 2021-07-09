@@ -112,7 +112,8 @@ class KCustomCreditsScene extends Scene_Base {
       'Nio Kasgami - @kasgami - Concept Artist', 'Audio',
       'JDSherbert - @JDSherbert_ - Musician & Audio Engineer', 'Voice Acting',
       'Amysaurus - @Amysaurus121', 'Kino - @EISKino', 'Programming',
-      'Kino  - @EISKino - Tools Programmer', 'inc0der - Tools Programmer',
+      'Kino  - @EISKino - Tools Programmer',
+      'inc0der - @inc0der - Tools Programmer',
       'U.K.L - @U_K_L_- Gameplay Programmer'
     ].join('\n');
     creditText = new Text(creditsText, {

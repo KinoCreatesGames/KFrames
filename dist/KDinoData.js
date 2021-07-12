@@ -2,7 +2,7 @@
  *
  *  KDinoData.js
  * 
- *  Build Date: 7/9/2021
+ *  Build Date: 7/12/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -40,31 +40,31 @@ SOFTWARE
 */
 
 (function ($hx_exports, $global) {
-  "use strict";
+  "use strict"
   class EReg {
     constructor(r, opt) {
-      this.r = new RegExp(r, opt.split("u").join(""));
+      this.r = new RegExp(r, opt.split("u").join(""))
     }
     match(s) {
       if (this.r.global) {
-        this.r.lastIndex = 0;
+        this.r.lastIndex = 0
       }
-      this.r.m = this.r.exec(s);
-      this.r.s = s;
+      this.r.m = this.r.exec(s)
+      this.r.s = s
       return this.r.m != null;
     }
   }
 
   class KCDino {
     static main() {
-      let _this = $plugins;
-      let _g = [];
-      let _g1 = 0;
+      let _this = $plugins
+      let _g = []
+      let _g1 = 0
       while (_g1 < _this.length) {
-        let v = _this[_g1];
-        ++_g1;
+        let v = _this[_g1]
+        ++_g1
         if (new EReg("<KCDinoData>", "ig").match(v.description)) {
-          _g.push(v);
+          _g.push(v)
         }
       }
       KCDino.Data = [
@@ -3362,20 +3362,20 @@ SOFTWARE
           Description: 'This "devil lizard" was one of the earliest theropods.',
           Name: "Zupaysaurus",
         },
-      ];
+      ]
     }
     static randomFact() {
-      let dino = KCDino.Data[Math.floor(Math.random() * KCDino.Data.length)];
+      let dino = KCDino.Data[Math.floor(Math.random() * KCDino.Data.length)]
       return "" + dino.Name + " : " + dino.Description;
     }
   }
 
-  $hx_exports["KCDino"] = KCDino;
+  $hx_exports["KCDino"] = KCDino
 
   {
   }
-  KCDino.listener = new PIXI.utils.EventEmitter();
-  KCDino.main();
+  KCDino.listener = new PIXI.utils.EventEmitter()
+  KCDino.main()
 })(
   typeof exports != "undefined"
     ? exports
@@ -3385,4 +3385,4 @@ SOFTWARE
     ? self
     : this,
   {}
-);
+)

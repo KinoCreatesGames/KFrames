@@ -2,6 +2,7 @@ package ktitle;
 
 import macros.FnMacros;
 import rm.Globals;
+import rm.scenes.Scene_Title;
 
 typedef KParams = {};
 

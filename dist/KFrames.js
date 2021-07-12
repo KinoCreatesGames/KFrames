@@ -2,7 +2,7 @@
  *
  *  KFrames.js
  * 
- *  Build Date: 7/9/2021
+ *  Build Date: 7/12/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -44,38 +44,38 @@ SOFTWARE
 */
 
 (function ($hx_exports, $global) {
-  "use strict";
+  "use strict"
   var $estr = function () {
       return js_Boot.__string_rec(this, "");
     },
-    $hxEnums = $hxEnums || {};
+    $hxEnums = $hxEnums || {}
   class EReg {
     constructor(r, opt) {
-      this.r = new RegExp(r, opt.split("u").join(""));
+      this.r = new RegExp(r, opt.split("u").join(""))
     }
     match(s) {
       if (this.r.global) {
-        this.r.lastIndex = 0;
+        this.r.lastIndex = 0
       }
-      this.r.m = this.r.exec(s);
-      this.r.s = s;
+      this.r.m = this.r.exec(s)
+      this.r.s = s
       return this.r.m != null;
     }
   }
 
-  EReg.__name__ = true;
-  Math.__name__ = true;
+  EReg.__name__ = true
+  Math.__name__ = true
   class haxe_ds_StringMap {
     constructor() {
-      this.h = Object.create(null);
+      this.h = Object.create(null)
     }
   }
 
-  haxe_ds_StringMap.__name__ = true;
+  haxe_ds_StringMap.__name__ = true
   class haxe_iterators_ArrayIterator {
     constructor(array) {
-      this.current = 0;
-      this.array = array;
+      this.current = 0
+      this.array = array
     }
     hasNext() {
       return this.current < this.array.length;
@@ -85,7 +85,7 @@ SOFTWARE
     }
   }
 
-  haxe_iterators_ArrayIterator.__name__ = true;
+  haxe_iterators_ArrayIterator.__name__ = true
   class js_Boot {
     static __string_rec(o, s) {
       if (o == null) {
@@ -94,62 +94,62 @@ SOFTWARE
       if (s.length >= 5) {
         return "<...>";
       }
-      let t = typeof o;
+      let t = typeof o
       if (t == "function" && (o.__name__ || o.__ename__)) {
-        t = "object";
+        t = "object"
       }
       switch (t) {
         case "function":
           return "<function>";
         case "object":
           if (o.__enum__) {
-            let e = $hxEnums[o.__enum__];
-            let con = e.__constructs__[o._hx_index];
-            let n = con._hx_name;
+            let e = $hxEnums[o.__enum__]
+            let con = e.__constructs__[o._hx_index]
+            let n = con._hx_name
             if (con.__params__) {
-              s = s + "\t";
+              s = s + "\t"
               return (
                 n +
                 "(" +
                 (function ($this) {
-                  var $r;
-                  let _g = [];
+                  var $r
+                  let _g = []
                   {
-                    let _g1 = 0;
-                    let _g2 = con.__params__;
+                    let _g1 = 0
+                    let _g2 = con.__params__
                     while (true) {
                       if (!(_g1 < _g2.length)) {
-                        break;
+                        break
                       }
-                      let p = _g2[_g1];
-                      _g1 = _g1 + 1;
-                      _g.push(js_Boot.__string_rec(o[p], s));
+                      let p = _g2[_g1]
+                      _g1 = _g1 + 1
+                      _g.push(js_Boot.__string_rec(o[p], s))
                     }
                   }
-                  $r = _g;
+                  $r = _g
                   return $r;
                 })(this).join(",") +
                 ")"
-              );
+              )
             } else {
               return n;
             }
           }
           if (o instanceof Array) {
-            let str = "[";
+            let str = "["
             s += "\t";
-            let _g = 0;
-            let _g1 = o.length;
+            let _g = 0
+            let _g1 = o.length
             while (_g < _g1) {
-              let i = _g++;
+              let i = _g++
               str += (i > 0 ? "," : "") + js_Boot.__string_rec(o[i], s);
             }
             str += "]";
             return str;
           }
-          let tostr;
+          let tostr
           try {
-            tostr = o.toString;
+            tostr = o.toString
           } catch (_g) {
             return "???";
           }
@@ -158,18 +158,18 @@ SOFTWARE
             tostr != Object.toString &&
             typeof tostr == "function"
           ) {
-            let s2 = o.toString();
+            let s2 = o.toString()
             if (s2 != "[object Object]") {
               return s2;
             }
           }
-          let str = "{\n";
+          let str = "{\n"
           s += "\t";
-          let hasp = o.hasOwnProperty != null;
-          let k = null;
+          let hasp = o.hasOwnProperty != null
+          let k = null
           for (k in o) {
             if (hasp && !o.hasOwnProperty(k)) {
-              continue;
+              continue
             }
             if (
               k == "prototype" ||
@@ -178,14 +178,14 @@ SOFTWARE
               k == "__interfaces__" ||
               k == "__properties__"
             ) {
-              continue;
+              continue
             }
             if (str.length != 2) {
               str += ", \n";
             }
             str += s + k + " : " + js_Boot.__string_rec(o[k], s);
           }
-          s = s.substring(1);
+          s = s.substring(1)
           str += "\n" + s + "}";
           return str;
         case "string":
@@ -196,55 +196,55 @@ SOFTWARE
     }
   }
 
-  js_Boot.__name__ = true;
+  js_Boot.__name__ = true
   class kframes_KFrameSprite extends Sprite {
     constructor(bitmap, frameWidth, frameHeight) {
       if (frameHeight == null) {
-        frameHeight = 48;
+        frameHeight = 48
       }
       if (frameWidth == null) {
-        frameWidth = 48;
+        frameWidth = 48
       }
       super(bitmap);
-      this.frameWidth = frameWidth;
-      this.frameHeight = frameHeight;
-      this.frameIndex = 0;
-      this.looping = false;
-      this.setFPS(6);
-      this.animations = new haxe_ds_StringMap();
+      this.frameWidth = frameWidth
+      this.frameHeight = frameHeight
+      this.frameIndex = 0
+      this.looping = false
+      this.setFPS(6)
+      this.animations = new haxe_ds_StringMap()
       if (this._frame != null) {
         this.setFrame(
           this._frame.x,
           this._frame.y,
           this.frameWidth,
           this.frameHeight
-        );
+        )
       }
     }
     update() {
-      super.update();
-      this.updateAnimationFrames();
+      super.update()
+      this.updateAnimationFrames()
     }
     updateAnimationFrames() {
       if (this.isPlaying) {
         if (this.frameWait <= 0) {
-          this.frameWait = this.frameAmount;
+          this.frameWait = this.frameAmount
           if (this.animations != null) {
-            let frames = this.animations.h[this.currentAnimName];
+            let frames = this.animations.h[this.currentAnimName]
             if (this.frameIndex == frames.length && !this.looping) {
-              this.isPlaying = false;
+              this.isPlaying = false
             }
-            this.frameIndex %= frames.length;
-            this.setCurrentFrame(frames[this.frameIndex]);
-            this.frameIndex++;
+            this.frameIndex %= frames.length
+            this.setCurrentFrame(frames[this.frameIndex])
+            this.frameIndex++
           }
         } else {
-          this.frameWait--;
+          this.frameWait--
         }
       }
     }
     setCurrentFrame(frameNumber) {
-      let columns = Math.floor(this.bitmap.width / this.frameWidth);
+      let columns = Math.floor(this.bitmap.width / this.frameWidth)
       this.setFrame(
         Math.min(
           Math.max(this.frameWidth * (frameNumber % columns), 0),
@@ -253,102 +253,102 @@ SOFTWARE
         this.frameHeight * Math.floor(frameNumber / columns),
         this.frameWidth,
         this.frameHeight
-      );
+      )
     }
     setFrameWidth(width) {
-      this.frameWidth = width;
+      this.frameWidth = width
       this.setFrame(
         this._frame.x,
         this._frame.y,
         this.frameWidth,
         this._frame.height
-      );
+      )
       return this;
     }
     setFrameHeight(height) {
-      this.frameHeight = height;
+      this.frameHeight = height
       this.setFrame(
         this._frame.x,
         this._frame.y,
         this._frame.width,
         this.frameHeight
-      );
+      )
       return this;
     }
     changeBitmap(bitmap) {
-      this.bitmap = bitmap;
+      this.bitmap = bitmap
       return this;
     }
     addAnimation(animationName, frames) {
-      this.animations.h[animationName] = frames;
+      this.animations.h[animationName] = frames
       return this;
     }
     playAnimation(animationName, loop) {
-      this.currentAnimName = animationName;
-      this.isPlaying = true;
-      this.looping = true;
+      this.currentAnimName = animationName
+      this.isPlaying = true
+      this.looping = true
       return this;
     }
     setFPS(fps) {
-      this.frameSpeed = fps;
-      this.frameAmount = Math.ceil(60 / this.frameSpeed);
-      this.frameWait = this.frameAmount;
+      this.frameSpeed = fps
+      this.frameAmount = Math.ceil(60 / this.frameSpeed)
+      this.frameWait = this.frameAmount
       return this;
     }
     stop() {
-      this.isPlaying = false;
-      this.looping = false;
+      this.isPlaying = false
+      this.looping = false
     }
   }
 
-  kframes_KFrameSprite.__name__ = true;
+  kframes_KFrameSprite.__name__ = true
   class KCFrames {
     static main() {
-      let _this = $plugins;
-      let _g = [];
-      let _g1 = 0;
+      let _this = $plugins
+      let _g = []
+      let _g1 = 0
       while (_g1 < _this.length) {
-        let v = _this[_g1];
-        ++_g1;
+        let v = _this[_g1]
+        ++_g1
         if (new EReg("<KCFrames>", "ig").match(v.description)) {
-          _g.push(v);
+          _g.push(v)
         }
       }
-      KCFrames.Params = {};
+      KCFrames.Params = {}
     }
     static params() {
       return KCFrames.Params;
     }
     static createSprite(path, frameWidth, frameHeight) {
       if (frameHeight == null) {
-        frameHeight = 48;
+        frameHeight = 48
       }
       if (frameWidth == null) {
-        frameWidth = 48;
+        frameWidth = 48
       }
       return new kframes_KFrameSprite(
         ImageManager.loadPicture(path),
         frameWidth,
         frameHeight
-      );
+      )
     }
     static addToScene(kframeSprite) {
-      SceneManager._scene.addChild(kframeSprite);
+      SceneManager._scene.addChild(kframeSprite)
       return kframeSprite;
     }
   }
 
-  $hx_exports["KCFrames"] = KCFrames;
-  KCFrames.__name__ = true;
+  $hx_exports["KCFrames"] = KCFrames
+  KCFrames.__name__ = true
 
   {
-    String.__name__ = true;
-    Array.__name__ = true;
+    String.__name__ = true
+    Array.__name__ = true
   }
-  js_Boot.__toStr = {}.toString;
-  KCFrames.listener = new PIXI.utils.EventEmitter();
-  KCFrames.KFrameSprite = kframes_KFrameSprite;
-  KCFrames.main();
+  js_Boot.__toStr = {}.toString
+  KCFrames.listener = new PIXI.utils.EventEmitter()
+  KCFrames.KFrameSprite = kframes_KFrameSprite
+  KCFrames.main()
 })(
   typeof exports != "undefined"
     ? exports
@@ -358,4 +358,4 @@ SOFTWARE
     ? self
     : this,
   {}
-);
+)

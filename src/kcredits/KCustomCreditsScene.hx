@@ -1,5 +1,6 @@
 package kcredits;
 
+import rm.managers.AudioManager;
 import rm.core.TouchInput;
 import rm.core.Input;
 import rm.core.TilingSprite;
@@ -50,6 +51,20 @@ class KCustomCreditsScene extends Scene_Base {
     createTitle();
     createCredits();
     createFin();
+    this.startBackgroundMusic();
+  }
+
+  public function startBackgroundMusic() {
+    AudioManager.stopBgm();
+    AudioManager.playBgm({
+      name: 'JDSherbert - Stargazer OST - Twilight (Main Menu Theme)',
+      volume: 80,
+      pos: 0,
+      pan: 0,
+      pitch: 100
+    });
+    AudioManager.stopBgs();
+    AudioManager.stopMe();
   }
 
   public function createBackground() {

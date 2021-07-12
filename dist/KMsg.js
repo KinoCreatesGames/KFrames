@@ -210,10 +210,14 @@ SOFTWARE
       // Defaults to white ;
       this.borderColor = 16777215;
       this.borderSize = 4;
+      this.bgAlpha = 1;
       this.text = "";
       this.fontColor = 16777215;
-      this.fontSize = 12;
+      this.fontSize = 16;
       this.align = "left";
+      this.cornerRadius = 10;
+      this.textTime = 5;
+      this.textTimer = this.textTime;
       this.pText = new PIXI.Text(this.text, {
         fontSize: this.fontSize,
         fill: this.fontColor,
@@ -224,32 +228,129 @@ SOFTWARE
       this.padding = 4;
       this.pText.y = this.borderSize + this.padding;
       this.pText.x = this.borderSize + this.padding;
+      this.pText.text = "";
+      this.starIndicator = new PIXI.Graphics();
+      let starPadding = this.padding + 20 + this.borderSize;
+      this.starIndicator.x = this.windowWidth - starPadding;
+      this.starIndicator.y = this.windowHeight - starPadding;
+      this.tilingBackground = new TilingSprite(
+        new Bitmap(this.windowWidth, this.windowHeight)
+      );
+      this.tilingBackground.x = this.borderSize;
+      this.tilingBackground.y = this.borderSize;
+      this.addChild(this.tilingBackground);
+      this.addChild(this.starIndicator);
       this.addChild(this.pText);
       this.drawMessageBox();
+      this.emit("createWindow", this);
     }
     sendMsg(msg) {
       this.text = msg;
-      this.pText.text = this.text;
+      this.pText.text = "";
+      this.starIndicator.visible = false;
+      this.emit("sendMsg", this, msg);
     }
     drawMessageBox() {
       this.clear();
       this.drawBorder();
       this.drawBackground();
+      this.drawTilingBackground();
+      this.drawIndicatorStar();
     }
     drawBorder() {
-      this.beginFill(this.borderColor);
-      this.drawRect(0, 0, this.windowWidth, this.windowHeight);
+      this.beginFill(this.borderColor, 1);
+      this.drawRoundedRect(
+        0,
+        0,
+        this.windowWidth,
+        this.windowHeight,
+        this.cornerRadius
+      );
+      this.endFill();
       return this;
     }
     drawBackground() {
-      this.beginFill(this.bgColor);
-      this.drawRect(
+      this.beginFill(this.bgColor, this.bgAlpha);
+      this.drawRoundedRect(
         this.borderSize,
         this.borderSize,
         this.windowWidth - this.borderSize * 2,
+        this.windowHeight - this.borderSize * 2,
+        this.cornerRadius
+      );
+      this.endFill();
+      return this;
+    }
+    drawTilingBackground() {
+      let starGraphic = new PIXI.Graphics();
+      starGraphic.beginFill(1710618, 0.75);
+      let starCount = Math.floor(this.windowWidth / 10);
+      let starRows = Math.floor(this.windowHeight / 10);
+      let starSpacing = 25;
+      let _g = 0;
+      let _g1 = starCount;
+      while (_g < _g1) {
+        let i = _g++;
+        let _g1 = 0;
+        let _g2 = starRows;
+        while (_g1 < _g2) {
+          let y = _g1++;
+          starGraphic.drawStar(i * starSpacing, y * starSpacing, 5, 10, 5, 0);
+        }
+      }
+      starGraphic.endFill();
+      let renderer = Graphics.app.renderer;
+      let texture = renderer.generateTexture(
+        starGraphic,
+        PIXI.SCALE_MODES.DEFAULT,
+        1
+      );
+      let canvas = renderer.extract.canvas(texture);
+      texture.destroy(true);
+      this.tilingBackground.bitmap = new Bitmap(
+        this.windowWidth - this.borderSize * 2,
         this.windowHeight - this.borderSize * 2
       );
-      return this;
+      let bitmap = this.tilingBackground.bitmap;
+      bitmap.context.drawImage(canvas, 0, 0);
+      bitmap.baseTexture.update();
+      this.tilingBackground.move(
+        this.borderSize,
+        this.borderSize,
+        bitmap.width,
+        bitmap.height
+      );
+    }
+    drawIndicatorStar() {
+      this.starIndicator.clear();
+      this.starIndicator.beginFill(16777215, 1);
+      this.starIndicator.drawStar(0, 0, 5, 10, 5, 0);
+      this.starIndicator.endFill();
+      let starPadding = this.padding + 20 + this.borderSize;
+      this.starIndicator.x = this.windowWidth - starPadding;
+      this.starIndicator.y = this.windowHeight - starPadding;
+    }
+    update() {
+      this.updateTilingBackground();
+      this.updateTextToRender();
+    }
+    updateTilingBackground() {
+      this.tilingBackground.origin.y -= 0.64;
+      this.tilingBackground.origin.x += 0.64;
+    }
+    updateTextToRender() {
+      if (this.textTimer <= 0) {
+        this.textTimer = this.textTime;
+        this.pText.text = this.text.substring(0, this.pText.text.length + 1);
+      }
+      if (this.text != this.pText.text) {
+        this.textTimer--;
+      } else {
+        if (!this.starIndicator.visible) {
+          this.emit("endMsg");
+        }
+        this.starIndicator.visible = true;
+      }
     }
     setBgColor(color) {
       this.bgColor = color;
@@ -306,9 +407,13 @@ SOFTWARE
     }
     hide() {
       this.visible = false;
+      this.emit("hideWindow", this);
+      return this;
     }
     show() {
       this.visible = true;
+      this.emit("showWindow", this);
+      return this;
     }
   }
 
@@ -340,6 +445,8 @@ SOFTWARE
     Array.__name__ = true;
   }
   js_Boot.__toStr = {}.toString;
+  KMsgBox.STAR_RADIUS = 10;
+  KMsgBox.TEXT_FRAMETIME = 5;
   KMessage.main();
 })(
   typeof exports != "undefined"

@@ -42,8 +42,8 @@ kmsg.hxml
 --next 
 kcredits.hxml
 
-# --next
-# lunavnload.hxml
+--next
+ktitle.hxml
 
 --cmd 'npx napkin'
 --cmd haxe -D gamePath=../games/stargazers/game --run CleanJs

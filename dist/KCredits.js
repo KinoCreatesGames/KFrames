@@ -295,10 +295,19 @@ SOFTWARE
           "inc0der - @inc0der - Tools Programmer",
           "U.K.L - @U_K_L_- Gameplay Programmer",
         ].join("\n"),
-        { align: "center", fill: 16777215, lineHeight: 48, fontSize: 24 }
+        {
+          align: "center",
+          fill: 16777215,
+          dropShadowColor: "rgba(0, 0, 0, 0.5)",
+          dropShadowDistance: 5,
+          dropShadow: true,
+          dropShadowAngle: Math.PI / 2,
+          lineHeight: 48,
+          fontSize: 24,
+        }
       )
       this.creditText.x = Graphics.width / 2 - this.creditText.width / 2
-      this.creditText.y += 40;
+      this.creditText.y += 20;
       this.container.addChild(this.creditText)
     }
     createFin() {

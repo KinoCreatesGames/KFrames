@@ -134,12 +134,20 @@ class KCustomCreditsScene extends Scene_Base {
     creditText = new Text(creditsText, {
       align: 'center',
       fill: 0xFFFFFF,
+      dropShadowColor: 'rgba(0, 0, 0, 0.7)',
+      dropShadowDistance: 7,
+      dropShadowBlur: 20,
+      dropShadow: true,
+      stroke: 0x000000,
+      strokeThickness: 5,
+      dropShadowAngle: Math.PI / 2,
       lineHeight: 48,
       fontSize: 24,
     });
+    untyped creditText.updateText();
 
     creditText.x = (centerX() - (creditText.width / 2));
-    creditText.y += 40;
+    creditText.y += 20;
     this.container.addChild(creditText);
   }
 

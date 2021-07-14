@@ -464,6 +464,10 @@ SOFTWARE
       const background = $dataSystem.titleCommandWindow.background
       const rect = this.commandWindowRect()
       this._commandWindow = new Window_TitleCommand(rect)
+      this._commandWindow.makeCommandList = function () {
+        this.addCommand(TextManager.newGame, "newGame")
+        this.addCommand(TextManager.options, "options")
+      }
       this._commandWindow.setBackgroundType(background)
       this._commandWindow.setHandler("newGame", this.commandNewGame.bind(this))
       this._commandWindow.setHandler("options", this.commandOptions.bind(this))
@@ -670,6 +674,10 @@ SOFTWARE
         const background = $dataSystem.titleCommandWindow.background
         const rect = this.commandWindowRect()
         this._commandWindow = new Window_TitleCommand(rect)
+        this._commandWindow.makeCommandList = function () {
+          this.addCommand(TextManager.newGame, "newGame")
+          this.addCommand(TextManager.options, "options")
+        }
         this._commandWindow.setBackgroundType(background)
         this._commandWindow.setHandler(
           "newGame",

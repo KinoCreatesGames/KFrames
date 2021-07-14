@@ -2,7 +2,7 @@
  *
  *  KTitle.js
  * 
- *  Build Date: 7/12/2021
+ *  Build Date: 7/13/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -60,6 +60,9 @@ SOFTWARE
 
   EReg.__name__ = true
   Math.__name__ = true
+  function core_MathExt_lerp(start, end, amount) {
+    return start + (end - start) * amount;
+  }
   class haxe_ds_StringMap {
     constructor() {
       this.h = Object.create(null)
@@ -341,17 +344,27 @@ SOFTWARE
     }
     create() {
       _Scene_Title_create.call(this)
+      this.setupParameters()
+      this.createScrollingContainer()
       this.createCharacter()
       this.createBalconyRailing()
       this.adjustChildren()
     }
+    setupParameters() {
+      this.titleTimer = 150
+    }
     adjustChildren() {
       this.addChild(this.customBackground)
-      this.addChild(this.foregroundBalcony)
-      this.addChild(this.yula)
-      this.addChild(this.foregroundBalconyRailing)
+      this.addChild(this.scrollingContainer)
+      this.scrollingContainer.addChild(this.foregroundBalcony)
+      this.scrollingContainer.addChild(this.yula)
+      this.scrollingContainer.addChild(this.foregroundBalconyRailing)
       this.addChild(this._gameTitleSprite)
       this.addChild(this._windowLayer)
+    }
+    createScrollingContainer() {
+      this.scrollingContainer = new Sprite()
+      this.scrollingContainer.y = 600
     }
     createCharacter() {
       this.yula = KCFrames.createSprite("Yula_Walk-Idle_51x103", 51, 103)
@@ -387,7 +400,9 @@ SOFTWARE
           loadedBitmap.width,
           loadedBitmap.height
         )
-        _gthis.customBackground.y -= 40
+        _gthis.customBackground.y -= 80
+        _gthis.customBackground.scale.y = 1.2
+        _gthis.customBackground.scale.x = 1.2
       })
     }
     createForeground() {
@@ -408,12 +423,67 @@ SOFTWARE
     adjustBackground() {}
     update() {
       _Scene_Title_update.call(this)
+      this.updateTitleState()
       this.updateCustomBackground()
+    }
+    updateTitleState() {
+      if (this.titleTimer <= 0) {
+        if (this.scrollingContainer.y >= 0) {
+          this.scrollingContainer.y = Math.min(
+            Math.max(
+              core_MathExt_lerp(this.scrollingContainer.y, -10, 0.0025),
+              0
+            ),
+            600
+          )
+          let num = this.scrollingContainer.y
+          if (num >= 0 && num <= 75) {
+            this.scrollingContainer.y = Math.min(
+              Math.max(
+                core_MathExt_lerp(this.scrollingContainer.y, -100, 0.0025),
+                0
+              ),
+              600
+            )
+          }
+        }
+        if (this.scrollingContainer.y == 0) {
+          this._commandWindow.visible = true
+          this._commandWindow.open()
+        }
+      } else {
+        this.titleTimer--
+      }
     }
     updateCustomBackground() {
       this.customBackground.origin.x = (TouchInput.x - Graphics.width / 2) / 10
       this.customBackground.origin.y =
         (TouchInput.y - Graphics.height / 2) / 10
+    }
+    createCommandWindow() {
+      const background = $dataSystem.titleCommandWindow.background
+      const rect = this.commandWindowRect()
+      this._commandWindow = new Window_TitleCommand(rect)
+      this._commandWindow.setBackgroundType(background)
+      this._commandWindow.setHandler("newGame", this.commandNewGame.bind(this))
+      this._commandWindow.setHandler("options", this.commandOptions.bind(this))
+      this._commandWindow.contents.fontFace = "title-font"
+      this._commandWindow.refresh()
+      this._commandWindow.setBackgroundType(2)
+      this._commandWindow.visible = false
+      this.addWindow(this._commandWindow)
+    }
+    drawGameTitle() {
+      let x = 20
+      let y = Graphics.height / 4
+      let maxWidth = Graphics.width - x * 2
+      let text = $dataSystem.gameTitle
+      let bitmap = this._gameTitleSprite.bitmap
+      bitmap.fontFace = "title-font"
+      bitmap.outlineColor = "black"
+      bitmap.outlineWidth = 8
+      bitmap.fontSize = 72
+      bitmap.drawText(text, x, y, maxWidth, 48, "center")
     }
     terminate() {
       Scene_Base.prototype.terminate.call(this)
@@ -447,21 +517,39 @@ SOFTWARE
       let _Scene_Title_foregroundBalconyRailing =
         Scene_Title.prototype.foregroundBalconyRailing
       Scene_Title.prototype.foregroundBalconyRailing = null
+      let _Scene_Title_scrollingContainer =
+        Scene_Title.prototype.scrollingContainer
+      Scene_Title.prototype.scrollingContainer = null
+      let _Scene_Title_titleTimer = Scene_Title.prototype.titleTimer
+      Scene_Title.prototype.titleTimer = null
       let _Scene_Title_create = Scene_Title.prototype.create
       Scene_Title.prototype.create = function () {
         _Scene_Title_create.call(this)
+        this.setupParameters()
+        this.createScrollingContainer()
         this.createCharacter()
         this.createBalconyRailing()
         this.adjustChildren()
       }
+      let _Scene_Title_setupParameters = Scene_Title.prototype.setupParameters
+      Scene_Title.prototype.setupParameters = function () {
+        this.titleTimer = 150
+      }
       let _Scene_Title_adjustChildren = Scene_Title.prototype.adjustChildren
       Scene_Title.prototype.adjustChildren = function () {
         this.addChild(this.customBackground)
-        this.addChild(this.foregroundBalcony)
-        this.addChild(this.yula)
-        this.addChild(this.foregroundBalconyRailing)
+        this.addChild(this.scrollingContainer)
+        this.scrollingContainer.addChild(this.foregroundBalcony)
+        this.scrollingContainer.addChild(this.yula)
+        this.scrollingContainer.addChild(this.foregroundBalconyRailing)
         this.addChild(this._gameTitleSprite)
         this.addChild(this._windowLayer)
+      }
+      let _Scene_Title_createScrollingContainer =
+        Scene_Title.prototype.createScrollingContainer
+      Scene_Title.prototype.createScrollingContainer = function () {
+        this.scrollingContainer = new Sprite()
+        this.scrollingContainer.y = 600
       }
       let _Scene_Title_createCharacter = Scene_Title.prototype.createCharacter
       Scene_Title.prototype.createCharacter = function () {
@@ -504,7 +592,9 @@ SOFTWARE
             loadedBitmap.width,
             loadedBitmap.height
           )
-          _gthis.customBackground.y -= 40
+          _gthis.customBackground.y -= 80
+          _gthis.customBackground.scale.y = 1.2
+          _gthis.customBackground.scale.x = 1.2
         })
       }
       let _Scene_Title_createForeground =
@@ -530,7 +620,39 @@ SOFTWARE
       let _Scene_Title_update = Scene_Title.prototype.update
       Scene_Title.prototype.update = function () {
         _Scene_Title_update.call(this)
+        this.updateTitleState()
         this.updateCustomBackground()
+      }
+      let _Scene_Title_updateTitleState =
+        Scene_Title.prototype.updateTitleState
+      Scene_Title.prototype.updateTitleState = function () {
+        if (this.titleTimer <= 0) {
+          if (this.scrollingContainer.y >= 0) {
+            this.scrollingContainer.y = Math.min(
+              Math.max(
+                core_MathExt_lerp(this.scrollingContainer.y, -10, 0.0025),
+                0
+              ),
+              600
+            )
+            let num = this.scrollingContainer.y
+            if (num >= 0 && num <= 75) {
+              this.scrollingContainer.y = Math.min(
+                Math.max(
+                  core_MathExt_lerp(this.scrollingContainer.y, -100, 0.0025),
+                  0
+                ),
+                600
+              )
+            }
+          }
+          if (this.scrollingContainer.y == 0) {
+            this._commandWindow.visible = true
+            this._commandWindow.open()
+          }
+        } else {
+          this.titleTimer--
+        }
       }
       let _Scene_Title_updateCustomBackground =
         Scene_Title.prototype.updateCustomBackground
@@ -541,6 +663,40 @@ SOFTWARE
         let movementScaleY = offsetFromCenterY / 10
         this.customBackground.origin.x = movementScaleX
         this.customBackground.origin.y = movementScaleY
+      }
+      let _Scene_Title_createCommandWindow =
+        Scene_Title.prototype.createCommandWindow
+      Scene_Title.prototype.createCommandWindow = function () {
+        const background = $dataSystem.titleCommandWindow.background
+        const rect = this.commandWindowRect()
+        this._commandWindow = new Window_TitleCommand(rect)
+        this._commandWindow.setBackgroundType(background)
+        this._commandWindow.setHandler(
+          "newGame",
+          this.commandNewGame.bind(this)
+        )
+        this._commandWindow.setHandler(
+          "options",
+          this.commandOptions.bind(this)
+        )
+        this._commandWindow.contents.fontFace = "title-font"
+        this._commandWindow.refresh()
+        this._commandWindow.setBackgroundType(2)
+        this._commandWindow.visible = false
+        this.addWindow(this._commandWindow)
+      }
+      let _Scene_Title_drawGameTitle = Scene_Title.prototype.drawGameTitle
+      Scene_Title.prototype.drawGameTitle = function () {
+        let x = 20
+        let y = Graphics.height / 4
+        let maxWidth = Graphics.width - x * 2
+        let text = $dataSystem.gameTitle
+        let bitmap = this._gameTitleSprite.bitmap
+        bitmap.fontFace = "title-font"
+        bitmap.outlineColor = "black"
+        bitmap.outlineWidth = 8
+        bitmap.fontSize = 72
+        bitmap.drawText(text, x, y, maxWidth, 48, "center")
       }
       let _Scene_Title_terminate = Scene_Title.prototype.terminate
       Scene_Title.prototype.terminate = function () {

@@ -69,6 +69,7 @@ class KCustomCreditsScene extends Scene_Base {
 
   public function createBackground() {
     var backgroundColor = new Sprite();
+    var vignette2 = new Sprite(ImageManager.loadPicture('vignettev1'));
     backgroundColor.bitmap = new Bitmap(Graphics.width, Graphics.height);
     backgroundColor.bitmap.fillRect(0, 0, Graphics.width, Graphics.height,
       '#89c0f3');
@@ -78,6 +79,8 @@ class KCustomCreditsScene extends Scene_Base {
       background.bitmap = bitmap;
       background.move(0, 0, bitmap.width, bitmap.height);
     }); // this.addChild(backgroundColor);
+    this.background.mask = vignette2;
+    this.addChild(vignette2);
     this.addChild(background);
   }
 
@@ -122,6 +125,7 @@ class KCustomCreditsScene extends Scene_Base {
   }
 
   public function createCredits() {
+    var vignette = new Sprite(ImageManager.loadPicture('vignettev3'));
     var creditsText = [
       'Art', 'Amysaurus - @Amysaurus121 - Pixel Artist',
       'Nio Kasgami - @kasgami - Concept Artist', 'Audio',
@@ -138,16 +142,16 @@ class KCustomCreditsScene extends Scene_Base {
       dropShadowDistance: 7,
       dropShadowBlur: 20,
       dropShadow: true,
-      stroke: 0x000000,
       strokeThickness: 5,
       dropShadowAngle: Math.PI / 2,
       lineHeight: 48,
       fontSize: 24,
     });
     untyped creditText.updateText();
-
     creditText.x = (centerX() - (creditText.width / 2));
     creditText.y += 20;
+    this.creditText.mask = vignette;
+    this.addChild(vignette);
     this.container.addChild(creditText);
   }
 

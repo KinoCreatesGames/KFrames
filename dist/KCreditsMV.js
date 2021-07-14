@@ -2,7 +2,7 @@
  *
  *  KCreditsMV.js
  * 
- *  Build Date: 7/12/2021
+ *  Build Date: 7/13/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -228,6 +228,7 @@ SOFTWARE
     }
     createBackground() {
       let backgroundColor = new Sprite()
+      let vignette2 = new Sprite(ImageManager.loadPicture("vignettev1"))
       let _gthis = this
       backgroundColor.bitmap = new Bitmap(Graphics.width, Graphics.height)
       backgroundColor.bitmap.fillRect(
@@ -245,6 +246,8 @@ SOFTWARE
         _gthis.background.bitmap = bitmap
         _gthis.background.move(0, 0, bitmap.width, bitmap.height)
       })
+      this.background.mask = vignette2
+      this.addChild(vignette2)
       this.addChild(this.background)
     }
     createCharacters() {
@@ -280,34 +283,38 @@ SOFTWARE
       this.container.addChild(this.titleText)
     }
     createCredits() {
-      this.creditText = new PIXI.Text(
-        [
-          "Art",
-          "Amysaurus - @Amysaurus121 - Pixel Artist",
-          "Nio Kasgami - @kasgami - Concept Artist",
-          "Audio",
-          "JDSherbert - @JDSherbert_ - Musician & Audio Engineer",
-          "Voice Acting",
-          "Amysaurus - @Amysaurus121",
-          "Kino - @EISKino",
-          "Programming",
-          "Kino  - @EISKino - Tools Programmer",
-          "inc0der - @inc0der - Tools Programmer",
-          "U.K.L - @U_K_L_- Gameplay Programmer",
-        ].join("\n"),
-        {
-          align: "center",
-          fill: 16777215,
-          dropShadowColor: "rgba(0, 0, 0, 0.5)",
-          dropShadowDistance: 5,
-          dropShadow: true,
-          dropShadowAngle: Math.PI / 2,
-          lineHeight: 48,
-          fontSize: 24,
-        }
-      )
+      let vignette = new Sprite(ImageManager.loadPicture("vignettev3"))
+      let creditsText = [
+        "Art",
+        "Amysaurus - @Amysaurus121 - Pixel Artist",
+        "Nio Kasgami - @kasgami - Concept Artist",
+        "Audio",
+        "JDSherbert - @JDSherbert_ - Musician & Audio Engineer",
+        "Voice Acting",
+        "Amysaurus - @Amysaurus121",
+        "Kino - @EISKino",
+        "Programming",
+        "Kino  - @EISKino - Tools Programmer",
+        "inc0der - @inc0der - Tools Programmer",
+        "U.K.L - @U_K_L_- Gameplay Programmer",
+      ].join("\n")
+      this.creditText = new PIXI.Text(creditsText, {
+        align: "center",
+        fill: 16777215,
+        dropShadowColor: "rgba(0, 0, 0, 0.7)",
+        dropShadowDistance: 7,
+        dropShadowBlur: 20,
+        dropShadow: true,
+        strokeThickness: 5,
+        dropShadowAngle: Math.PI / 2,
+        lineHeight: 48,
+        fontSize: 24,
+      })
+      this.creditText.updateText()
       this.creditText.x = Graphics.width / 2 - this.creditText.width / 2
       this.creditText.y += 20;
+      this.creditText.mask = vignette
+      this.addChild(vignette)
       this.container.addChild(this.creditText)
     }
     createFin() {

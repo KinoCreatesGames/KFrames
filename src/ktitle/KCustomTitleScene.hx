@@ -74,7 +74,7 @@ class KCustomTitleScene extends Scene_Title {
     yula.playAnimation('idle', true);
     yula.setFPS(18);
     yula.x = 528;
-    yula.y = 272;
+    yula.y = 276;
     yula.scale.y = 2;
     yula.scale.x = -2;
     // this.addChild(yula);

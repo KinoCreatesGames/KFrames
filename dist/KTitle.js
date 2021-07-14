@@ -373,7 +373,7 @@ SOFTWARE
       this.yula.playAnimation("idle", true)
       this.yula.setFPS(18)
       this.yula.x = 528
-      this.yula.y = 272
+      this.yula.y = 276
       this.yula.scale.y = 2
       this.yula.scale.x = -2
     }
@@ -563,7 +563,7 @@ SOFTWARE
         this.yula.playAnimation("idle", true)
         this.yula.setFPS(18)
         this.yula.x = 528
-        this.yula.y = 272
+        this.yula.y = 276
         this.yula.scale.y = 2
         this.yula.scale.x = -2
       }

@@ -32,6 +32,9 @@ class KCustomCreditsScene extends Scene_Base {
   public var finText:Text;
   public var background:TilingSprite;
   public var startFade:Bool;
+  public var initialFadeTimer:Int;
+
+  public static inline var INITIAL_FADE = 600;
 
   public function new() {
     super();
@@ -45,6 +48,9 @@ class KCustomCreditsScene extends Scene_Base {
   override public function create() {
     super.create();
     this.startFade = false;
+    // Start with a fade in on the credit screen
+    this.startFadeIn(INITIAL_FADE, false);
+    this.initialFadeTimer = INITIAL_FADE;
     createBackground();
     createContainer();
     createCharacters();
@@ -57,7 +63,7 @@ class KCustomCreditsScene extends Scene_Base {
   public function startBackgroundMusic() {
     AudioManager.stopBgm();
     AudioManager.playBgm({
-      name: 'JDSherbert - Stargazer OST - Twilight (Main Menu Theme)',
+      name: 'JDSherbert - Stargazer OST - Twilight (Lite Arrangement)',
       volume: 80,
       pos: 0,
       pan: 0,
@@ -121,6 +127,7 @@ class KCustomCreditsScene extends Scene_Base {
       fontSize: 24
     });
     titleText.x = (centerX() - (titleText.width / 2));
+
     this.container.addChild(titleText);
   }
 
@@ -149,8 +156,10 @@ class KCustomCreditsScene extends Scene_Base {
     });
     untyped creditText.updateText();
     creditText.x = (centerX() - (creditText.width / 2));
-    creditText.y += 20;
+    creditText.y += 824;
+    titleText.y = creditText.y - 40;
     this.creditText.mask = vignette;
+    this.titleText.mask = vignette;
     this.addChild(vignette);
     this.container.addChild(creditText);
   }
@@ -174,9 +183,12 @@ class KCustomCreditsScene extends Scene_Base {
 
   public function updateCreditScreen() {
     this.background.origin.x += 0.64;
-    this.updateCreditScroll();
-    this.updateCreditFin();
-    this.updateButtonPress();
+    this.initialFadeTimer--;
+    if (this.initialFadeTimer <= 0) {
+      this.updateCreditScroll();
+      this.updateCreditFin();
+      this.updateButtonPress();
+    }
   }
 
   public function updateCreditScroll() {
@@ -194,9 +206,9 @@ class KCustomCreditsScene extends Scene_Base {
     var screenPosition = this.creditText.toGlobal(new Point(this.creditText.x,
       this.creditText.y));
     var padding = 15;
-    if (((padding + this.creditText.height) + screenPosition.y) < 0) {
+    if (((padding + this.creditText.height) + screenPosition.y) < 150) {
       // Show Fin via fade In
-      this.finText.alpha = lerp(this.finText.alpha, 1.1, 0.005);
+      this.finText.alpha = lerp(this.finText.alpha, 1.1, 0.0015);
     }
   }
 

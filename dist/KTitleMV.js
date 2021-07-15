@@ -2,7 +2,7 @@
  *
  *  KTitleMV.js
  * 
- *  Build Date: 7/13/2021
+ *  Build Date: 7/14/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -410,6 +410,8 @@ SOFTWARE
     }
     setupParameters() {
       this.titleTimer = 150
+      this.skipScroll = false
+      this.skipScrollComplete = false
     }
     adjustChildren() {
       this.addChild(this.customBackground)
@@ -485,7 +487,29 @@ SOFTWARE
       this.updateCustomBackground()
     }
     updateTitleState() {
-      if (this.titleTimer <= 0) {
+      if (
+        (Input.isPressed("ok") ||
+          Input.isPressed("cancel") ||
+          TouchInput.isCancelled() ||
+          TouchInput.isPressed()) &&
+        !this.skipScroll
+      ) {
+        this.skipScroll = true
+        this.startFadeOut(30, false)
+      }
+      if (
+        this.skipScroll &&
+        this._fadeDuration <= 0 &&
+        !this.skipScrollComplete
+      ) {
+        this.scrollingContainer.y = 0
+        this.startFadeIn(30, false)
+        this.skipScrollComplete = true
+        if (this.scrollingContainer.y == 0) {
+          this._commandWindow.visible = true
+          this._commandWindow.open()
+        }
+      } else if (this.titleTimer <= 0) {
         if (this.scrollingContainer.y >= 0) {
           this.scrollingContainer.y = Math.min(
             Math.max(
@@ -584,6 +608,11 @@ SOFTWARE
       Scene_Title.prototype.scrollingContainer = null
       let _Scene_Title_titleTimer = Scene_Title.prototype.titleTimer
       Scene_Title.prototype.titleTimer = null
+      let _Scene_Title_skipScroll = Scene_Title.prototype.skipScroll
+      Scene_Title.prototype.skipScroll = null
+      let _Scene_Title_skipScrollComplete =
+        Scene_Title.prototype.skipScrollComplete
+      Scene_Title.prototype.skipScrollComplete = null
       let _Scene_Title_create = Scene_Title.prototype.create
       Scene_Title.prototype.create = function () {
         _Scene_Title_create.call(this)
@@ -596,6 +625,8 @@ SOFTWARE
       let _Scene_Title_setupParameters = Scene_Title.prototype.setupParameters
       Scene_Title.prototype.setupParameters = function () {
         this.titleTimer = 150
+        this.skipScroll = false
+        this.skipScrollComplete = false
       }
       let _Scene_Title_adjustChildren = Scene_Title.prototype.adjustChildren
       Scene_Title.prototype.adjustChildren = function () {
@@ -688,7 +719,28 @@ SOFTWARE
       let _Scene_Title_updateTitleState =
         Scene_Title.prototype.updateTitleState
       Scene_Title.prototype.updateTitleState = function () {
-        if (this.titleTimer <= 0) {
+        let buttonClicked =
+          Input.isPressed("ok") ||
+          Input.isPressed("cancel") ||
+          TouchInput.isCancelled() ||
+          TouchInput.isPressed()
+        if (buttonClicked && !this.skipScroll) {
+          this.skipScroll = true
+          this.startFadeOut(30, false)
+        }
+        if (
+          this.skipScroll &&
+          this._fadeDuration <= 0 &&
+          !this.skipScrollComplete
+        ) {
+          this.scrollingContainer.y = 0
+          this.startFadeIn(30, false)
+          this.skipScrollComplete = true
+          if (this.scrollingContainer.y == 0) {
+            this._commandWindow.visible = true
+            this._commandWindow.open()
+          }
+        } else if (this.titleTimer <= 0) {
           if (this.scrollingContainer.y >= 0) {
             this.scrollingContainer.y = Math.min(
               Math.max(

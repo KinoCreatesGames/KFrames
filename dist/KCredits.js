@@ -2,7 +2,7 @@
  *
  *  KCredits.js
  * 
- *  Build Date: 7/13/2021
+ *  Build Date: 7/14/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -206,6 +206,8 @@ SOFTWARE
     create() {
       super.create()
       this.startFade = false
+      this.startFadeIn(600, false)
+      this.initialFadeTimer = 600
       this.createBackground()
       this.createContainer()
       this.createCharacters()
@@ -217,7 +219,7 @@ SOFTWARE
     startBackgroundMusic() {
       AudioManager.stopBgm()
       AudioManager.playBgm({
-        name: "JDSherbert - Stargazer OST - Twilight (Main Menu Theme)",
+        name: "JDSherbert - Stargazer OST - Twilight (Lite Arrangement)",
         volume: 80,
         pos: 0,
         pan: 0,
@@ -312,8 +314,10 @@ SOFTWARE
       })
       this.creditText.updateText()
       this.creditText.x = Graphics.width / 2 - this.creditText.width / 2
-      this.creditText.y += 20;
+      this.creditText.y += 824;
+      this.titleText.y = this.creditText.y - 40
       this.creditText.mask = vignette
+      this.titleText.mask = vignette
       this.addChild(vignette)
       this.container.addChild(this.creditText)
     }
@@ -334,9 +338,12 @@ SOFTWARE
     }
     updateCreditScreen() {
       this.background.origin.x += 0.64;
-      this.updateCreditScroll()
-      this.updateCreditFin()
-      this.updateButtonPress()
+      this.initialFadeTimer--
+      if (this.initialFadeTimer <= 0) {
+        this.updateCreditScroll()
+        this.updateCreditFin()
+        this.updateButtonPress()
+      }
     }
     updateCreditScroll() {
       if (this.delay > 0) {
@@ -350,8 +357,8 @@ SOFTWARE
       let screenPosition = this.creditText.toGlobal(
         new PIXI.Point(this.creditText.x, this.creditText.y)
       )
-      if (15 + this.creditText.height + screenPosition.y < 0) {
-        this.finText.alpha = core_MathExt_lerp(this.finText.alpha, 1.1, 0.005)
+      if (15 + this.creditText.height + screenPosition.y < 150) {
+        this.finText.alpha = core_MathExt_lerp(this.finText.alpha, 1.1, 0.0015)
       }
     }
     updateButtonPress() {
@@ -552,6 +559,7 @@ SOFTWARE
     Array.__name__ = true
   }
   js_Boot.__toStr = {}.toString
+  KCustomCreditsScene.INITIAL_FADE = 600
   KCFrames.listener = new PIXI.utils.EventEmitter()
   KCFrames.KFrameSprite = kframes_KFrameSprite
   KCredits.main()

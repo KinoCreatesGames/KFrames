@@ -1,5 +1,6 @@
 package ktitle;
 
+import rm.core.Input;
 import core.MathExt.lerp;
 import js.Syntax;
 import utils.Fn;
@@ -34,6 +35,8 @@ class KCustomTitleScene extends Scene_Title {
   public var foregroundBalconyRailing:Sprite;
   public var scrollingContainer:Sprite;
   public var titleTimer:Int;
+  public var skipScroll:Bool;
+  public var skipScrollComplete:Bool;
 
   override public function create() {
     // Create Scene Title Functionality
@@ -48,6 +51,8 @@ class KCustomTitleScene extends Scene_Title {
   public function setupParameters() {
     // 2.5 seconds
     this.titleTimer = 150;
+    this.skipScroll = false;
+    this.skipScrollComplete = false;
   }
 
   public function adjustChildren() {
@@ -134,23 +139,44 @@ class KCustomTitleScene extends Scene_Title {
   }
 
   public function updateTitleState() {
-    if (this.titleTimer <= 0) {
-      // Scroll in backdrop and start the game after some time.
-      if (this.scrollingContainer.y >= 0) {
-        // this.scrollingContainer.y- 1
-        this.scrollingContainer.y = (lerp(this.scrollingContainer.y, -10,
-          0.0025)).clampf(0, 600);
-        if (this.scrollingContainer.y.withinRangef(0, 75)) {
-          this.scrollingContainer.y = (lerp(this.scrollingContainer.y, -100,
-            0.0025)).clampf(0, 600);
-        }
-      }
+    // buttonClicked
+    var buttonClicked = Input.isPressed('ok')
+      || Input.isPressed('cancel')
+      || TouchInput.isCancelled()
+      || TouchInput.isPressed();
+    if (buttonClicked && !this.skipScroll) {
+      this.skipScroll = true;
+      this.startFadeOut(30, false);
+    }
+
+    if (this.skipScroll && this._fadeDuration <= 0 && !this.skipScrollComplete) {
+      // Set everything to the proper positions automatically
+      this.scrollingContainer.y = 0;
+      this.startFadeIn(30, false);
+      this.skipScrollComplete = true;
       if (this.scrollingContainer.y == 0) {
         this._commandWindow.visible = true;
         this._commandWindow.open();
       }
     } else {
-      this.titleTimer--;
+      if (this.titleTimer <= 0) {
+        // Scroll in backdrop and start the game after some time.
+        if (this.scrollingContainer.y >= 0) {
+          // this.scrollingContainer.y- 1
+          this.scrollingContainer.y = (lerp(this.scrollingContainer.y, -10,
+            0.0025)).clampf(0, 600);
+          if (this.scrollingContainer.y.withinRangef(0, 75)) {
+            this.scrollingContainer.y = (lerp(this.scrollingContainer.y, -100,
+              0.0025)).clampf(0, 600);
+          }
+        }
+        if (this.scrollingContainer.y == 0) {
+          this._commandWindow.visible = true;
+          this._commandWindow.open();
+        }
+      } else {
+        this.titleTimer--;
+      }
     }
   }
 

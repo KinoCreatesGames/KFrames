@@ -2,7 +2,7 @@
  *
  *  KTitleMV.js
  * 
- *  Build Date: 7/14/2021
+ *  Build Date: 7/15/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -60,26 +60,6 @@ SOFTWARE
 
   EReg.__name__ = true
   Math.__name__ = true
-  class Reflect {
-    static fields(o) {
-      let a = []
-      if (o != null) {
-        let hasOwnProperty = Object.prototype.hasOwnProperty
-        for (var f in o) {
-          if (
-            f != "__id__" &&
-            f != "hx__closures__" &&
-            hasOwnProperty.call(o, f)
-          ) {
-            a.push(f)
-          }
-        }
-      }
-      return a;
-    }
-  }
-
-  Reflect.__name__ = true
   class Std {
     static string(s) {
       return js_Boot.__string_rec(s, "");
@@ -90,37 +70,29 @@ SOFTWARE
   function core_MathExt_lerp(start, end, amount) {
     return start + (end - start) * amount;
   }
-  class haxe_Exception extends Error {
-    constructor(message, previous, native) {
-      super(message);
-      this.message = message
-      this.__previousException = previous
-      this.__nativeException = native != null ? native : this
+  class haxe_Log {
+    static formatOutput(v, infos) {
+      let str = Std.string(v)
+      if (infos == null) {
+        return str;
+      }
+      let pstr = infos.fileName + ":" + infos.lineNumber
+      if (infos.customParams != null) {
+        let _g = 0
+        let _g1 = infos.customParams
+        while (_g < _g1.length) str += ", " + Std.string(_g1[_g++]);
+      }
+      return pstr + ": " + str;
     }
-    get_native() {
-      return this.__nativeException;
-    }
-    static thrown(value) {
-      if (value instanceof haxe_Exception) {
-        return value.get_native();
-      } else if (value instanceof Error) {
-        return value;
-      } else {
-        let e = new haxe_ValueException(value)
-        return e;
+    static trace(v, infos) {
+      let str = haxe_Log.formatOutput(v, infos)
+      if (typeof console != "undefined" && console.log != null) {
+        console.log(str)
       }
     }
   }
 
-  haxe_Exception.__name__ = true
-  class haxe_ValueException extends haxe_Exception {
-    constructor(value, previous, native) {
-      super(String(value), previous, native);
-      this.value = value
-    }
-  }
-
-  haxe_ValueException.__name__ = true
+  haxe_Log.__name__ = true
   class haxe_ds_StringMap {
     constructor() {
       this.h = Object.create(null)
@@ -396,6 +368,267 @@ SOFTWARE
 
   $hx_exports["KCFrames"] = KCFrames
   KCFrames.__name__ = true
+  class KMsgBox extends PIXI.Graphics {
+    constructor(x, y, width, height) {
+      if (height == null) {
+        height = 100
+      }
+      if (width == null) {
+        width = 100
+      }
+      if (y == null) {
+        y = 0
+      }
+      if (x == null) {
+        x = 0
+      }
+      super();
+      this.x = x
+      this.y = y
+      this.windowWidth = width
+      this.windowHeight = height
+      // Defaults to black 
+      this.bgColor = 0
+      // Defaults to white 
+      this.borderColor = 16777215
+      this.borderSize = 4
+      this.bgAlpha = 1
+      this.text = ""
+      this.fontColor = 16777215
+      this.fontSize = 16
+      this.align = "left"
+      this.cornerRadius = 10
+      this.textTime = 5
+      this.textTimer = this.textTime
+      this.pText = new PIXI.Text(this.text, {
+        fontSize: this.fontSize,
+        fill: this.fontColor,
+        align: this.align,
+        wordWrap: true,
+        wordWrapWidth: width,
+      })
+      this.padding = 4
+      this.pText.y = this.borderSize + this.padding
+      this.pText.x = this.borderSize + this.padding
+      this.pText.text = ""
+      this.starIndicator = new PIXI.Graphics()
+      let starPadding = this.padding + 20 + this.borderSize
+      this.starIndicator.x = this.windowWidth - starPadding
+      this.starIndicator.y = this.windowHeight - starPadding
+      this.tilingBackground = new TilingSprite(
+        new Bitmap(this.windowWidth, this.windowHeight)
+      )
+      this.tilingBackground.x = this.borderSize
+      this.tilingBackground.y = this.borderSize
+      this.addChild(this.tilingBackground)
+      this.addChild(this.starIndicator)
+      this.addChild(this.pText)
+      this.drawMessageBox()
+      this.emit("createWindow", this)
+    }
+    sendMsg(msg) {
+      this.text = msg
+      this.pText.text = ""
+      this.starIndicator.visible = false
+      this.emit("sendMsg", this, msg)
+    }
+    drawMessageBox() {
+      this.clear()
+      this.drawBorder()
+      this.drawBackground()
+      this.drawTilingBackground()
+      this.drawIndicatorStar()
+    }
+    drawBorder() {
+      this.beginFill(this.borderColor, 1)
+      this.drawRoundedRect(
+        0,
+        0,
+        this.windowWidth,
+        this.windowHeight,
+        this.cornerRadius
+      )
+      this.endFill()
+      return this;
+    }
+    drawBackground() {
+      this.beginFill(this.bgColor, this.bgAlpha)
+      this.drawRoundedRect(
+        this.borderSize,
+        this.borderSize,
+        this.windowWidth - this.borderSize * 2,
+        this.windowHeight - this.borderSize * 2,
+        this.cornerRadius
+      )
+      this.endFill()
+      return this;
+    }
+    drawTilingBackground() {
+      let starGraphic = new PIXI.Graphics()
+      starGraphic.beginFill(1710618, 0.75)
+      let starCount = Math.floor(this.windowWidth / 20)
+      let starRows = Math.floor(this.windowHeight / 20)
+      let starSpacing = 20
+      haxe_Log.trace(starCount, {
+        fileName: "src/kmessage/KMsgBox.hx",
+        lineNumber: 169,
+        className: "kmessage.KMsgBox",
+        methodName: "drawTilingBackground",
+        customParams: [starRows],
+      })
+      let _g = 1
+      let _g1 = starCount
+      while (_g < _g1) {
+        let i = _g++
+        let _g1 = 0
+        let _g2 = starRows
+        while (_g1 < _g2) {
+          let y = _g1++
+          starGraphic.drawStar(i * starSpacing, y * starSpacing, 5, 10, 5, 0)
+        }
+      }
+      starGraphic.endFill()
+      let renderer = Graphics.app.renderer
+      let texture = renderer.generateTexture(
+        starGraphic,
+        PIXI.SCALE_MODES.DEFAULT,
+        1
+      )
+      let canvas = renderer.extract.canvas(texture)
+      let padding = 4
+      texture.destroy(true)
+      this.tilingBackground.bitmap = new Bitmap(
+        this.windowWidth - (this.borderSize * 2 + padding),
+        this.windowHeight - (this.borderSize * 2 + padding)
+      )
+      let bitmap = this.tilingBackground.bitmap
+      bitmap.context.drawImage(canvas, 0, 0)
+      bitmap.baseTexture.update()
+      this.tilingBackground.move(
+        this.borderSize * 2,
+        this.borderSize * 2,
+        bitmap.width,
+        bitmap.height
+      )
+    }
+    drawIndicatorStar() {
+      this.starIndicator.clear()
+      this.starIndicator.beginFill(16777215, 1)
+      this.starIndicator.drawStar(0, 0, 5, 10, 5, 0)
+      this.starIndicator.endFill()
+      let starPadding = this.padding + 20 + this.borderSize
+      this.starIndicator.x = this.windowWidth - starPadding
+      this.starIndicator.y = this.windowHeight - starPadding
+    }
+    update() {
+      this.updateTilingBackground()
+      this.updateTextToRender()
+    }
+    updateTilingBackground() {
+      this.tilingBackground.origin.y -= 0.64
+      this.tilingBackground.origin.x += 0.64;
+    }
+    updateTextToRender() {
+      if (this.textTimer <= 0) {
+        this.textTimer = this.textTime
+        this.pText.text = this.text.substring(0, this.pText.text.length + 1)
+      }
+      if (this.text != this.pText.text) {
+        this.textTimer--
+      } else {
+        if (!this.starIndicator.visible) {
+          this.emit("endMsg")
+        }
+        this.starIndicator.visible = true
+      }
+    }
+    setBgColor(color) {
+      this.bgColor = color
+      this.drawMessageBox()
+      return this;
+    }
+    setFontSize(size) {
+      this.fontSize = size
+      this.pText.style.fontSize = size
+      return this;
+    }
+    setFontColor(color) {
+      this.fontColor = color
+      this.pText.style.fill = color
+      return this;
+    }
+    move(x, y) {
+      this.x = x != null ? x : this.x
+      this.y = y != null ? y : this.y
+      return this;
+    }
+    setXY(x, y) {
+      this.x = x
+      this.y = y
+      return this;
+    }
+    setWindowWidth(width) {
+      this.windowWidth = width
+      this.pText.style.wordWrapWidth =
+        this.windowWidth - (this.borderSize * 2 + this.padding)
+      this.drawMessageBox()
+      return this;
+    }
+    setWindowHeight(height) {
+      this.windowHeight = height
+      this.drawMessageBox()
+      return this;
+    }
+    setDimensions(width, height) {
+      this.windowWidth = width
+      this.windowHeight = height
+      this.pText.style.wordWrapWidth =
+        this.windowWidth - (this.borderSize * 2 + this.padding)
+      this.drawMessageBox()
+      return this;
+    }
+    setBorderColor(color) {
+      this.borderColor = color
+      this.drawMessageBox()
+      return this;
+    }
+    clear() {
+      return super.clear();
+    }
+    hide() {
+      this.visible = false
+      this.emit("hideWindow", this)
+      return this;
+    }
+    show() {
+      this.visible = true
+      this.emit("showWindow", this)
+      return this;
+    }
+  }
+
+  $hx_exports["KMsgBox"] = KMsgBox
+  KMsgBox.__name__ = true
+  class KMessage {
+    static main() {
+      let _this = $plugins
+      let _g = []
+      let _g1 = 0
+      while (_g1 < _this.length) {
+        let v = _this[_g1]
+        ++_g1
+        if (new EReg("<KMsg>", "ig").match(v.description)) {
+          _g.push(v)
+        }
+      }
+    }
+    static createMessageBox(x, y, width, height) {
+      return new KMsgBox(x, y, width, height);
+    }
+  }
+
+  $hx_exports["KMessage"] = KMessage
+  KMessage.__name__ = true
   class KCustomTitleScene extends Scene_Title {
     constructor() {
       super();
@@ -404,14 +637,111 @@ SOFTWARE
       _Scene_Title_create.call(this)
       this.setupParameters()
       this.createScrollingContainer()
+      this.createMessageBox()
       this.createCharacter()
       this.createBalconyRailing()
       this.adjustChildren()
+      this.setupCutscene()
     }
     setupParameters() {
       this.titleTimer = 150
       this.skipScroll = false
       this.skipScrollComplete = false
+      this.yulaExitScreen = false
+    }
+    setupCutscene() {
+      let padding = 20
+      this.commandStepList = []
+      let _gthis = this
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.msgBox.move(
+            _gthis.yula.x +
+              (_gthis.yula.width * _gthis.yula.scale.x) / 2 -
+              _gthis.msgBox.windowWidth / 2,
+            _gthis.yula.y - padding - _gthis.msgBox.height
+          )
+          _gthis.msgBox.show()
+          _gthis.msgBox.sendMsg(
+            "Oh! it's the North stars! ...oh! ...I can't believe we can see the constellation of Orion here!"
+          )
+        },
+        waitTime: 600,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.msgBox.sendMsg("Ah...stars are aweso...!")
+        },
+        waitTime: 300,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.msgBox.x += 150;
+          _gthis.msgBox.sendMsg("Yula! It's 2AM, Go to sleep!")
+        },
+        waitTime: 300,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.yula.scale.x = 2
+          _gthis.msgBox.move(
+            _gthis.yula.x +
+              (_gthis.yula.width * _gthis.yula.scale.x) / 2 -
+              _gthis.msgBox.windowWidth / 2,
+            _gthis.yula.y - padding - _gthis.msgBox.height
+          )
+          _gthis.msgBox.show()
+          _gthis.msgBox.sendMsg("Sorry daddy! I'm going to sleep!")
+        },
+        waitTime: 300,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.yula.scale.x = -2
+          _gthis.msgBox.move(
+            _gthis.yula.x +
+              (_gthis.yula.width * _gthis.yula.scale.x) / 2 -
+              _gthis.msgBox.windowWidth / 2,
+            _gthis.yula.y - padding - _gthis.msgBox.height
+          )
+          _gthis.msgBox.show()
+          _gthis.msgBox.sendMsg(
+            "Aww...if only my Dad shared the same excitement as me..."
+          )
+        },
+        waitTime: 300,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.msgBox.sendMsg(
+            "He hasn't enjoyed looking at the stars since mom..."
+          )
+        },
+        waitTime: 300,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.msgBox.sendMsg(
+            "Well whatever! Time to go to sleep before the old geezer gets angry!"
+          )
+        },
+        waitTime: 480,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.msgBox.hide()
+          _gthis.yula.scale.x = 2
+          _gthis.yulaExitScreen = true
+        },
+        waitTime: 60,
+      })
+      this.commandStepList.push({
+        fn: function () {
+          _gthis.fadeOutAll()
+          SceneManager.goto(Scene_Map)
+        },
+        waitTime: 30,
+      })
     }
     adjustChildren() {
       this.addChild(this.customBackground)
@@ -419,6 +749,7 @@ SOFTWARE
       this.scrollingContainer.addChild(this.foregroundBalcony)
       this.scrollingContainer.addChild(this.yula)
       this.scrollingContainer.addChild(this.foregroundBalconyRailing)
+      this.addChild(this.msgBox)
       this.addChild(this._gameTitleSprite)
       this.addChild(this._windowLayer)
     }
@@ -426,12 +757,18 @@ SOFTWARE
       this.scrollingContainer = new Sprite()
       this.scrollingContainer.y = 600
     }
+    createMessageBox() {
+      this.msgBox = KMessage.createMessageBox(0, 0, 200, 150)
+      this.msgBox.pText.style.wordWrapWidth -= 12
+      this.msgBox.setFontSize(18)
+      this.msgBox.hide()
+    }
     createCharacter() {
       this.yula = KCFrames.createSprite("Yula_Walk-Idle_51x103", 51, 103)
       this.yula.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7])
       this.yula.addAnimation("idle", [16, 17, 18, 19, 20, 21, 22, 23])
       this.yula.playAnimation("idle", true)
-      this.yula.setFPS(18)
+      this.yula.setFPS(10)
       this.yula.x = 528
       this.yula.y = 276
       this.yula.scale.y = 2
@@ -482,9 +819,23 @@ SOFTWARE
     }
     adjustBackground() {}
     update() {
-      _Scene_Title_update.call(this)
+      Scene_Base.prototype.update.call(this)
       this.updateTitleState()
       this.updateCustomBackground()
+      if (this.clickNewGame) {
+        this.updateIntroScene()
+      }
+    }
+    updateIntroScene() {
+      if (this.waitTime <= 0) {
+        this.currentCommand = this.commandStepList.shift()
+        if (this.currentCommand != null) {
+          this.currentCommand.fn()
+          this.waitTime = this.currentCommand.waitTime
+        }
+      } else {
+        this.waitTime--
+      }
     }
     updateTitleState() {
       if (
@@ -505,7 +856,7 @@ SOFTWARE
         this.scrollingContainer.y = 0
         this.startFadeIn(30, false)
         this.skipScrollComplete = true
-        if (this.scrollingContainer.y == 0) {
+        if (this.scrollingContainer.y == 0 && !this.clickNewGame) {
           this._commandWindow.visible = true
           this._commandWindow.open()
         }
@@ -529,7 +880,7 @@ SOFTWARE
             )
           }
         }
-        if (this.scrollingContainer.y == 0) {
+        if (this.scrollingContainer.y == 0 && !this.clickNewGame) {
           this._commandWindow.visible = true
           this._commandWindow.open()
         }
@@ -570,6 +921,12 @@ SOFTWARE
       bitmap.outlineWidth = 8
       bitmap.fontSize = 72
       bitmap.drawText(text, x, y, maxWidth, 48, "center")
+    }
+    commandNewGame() {
+      DataManager.setupNewGame()
+      this._commandWindow.close()
+      this.clickNewGame = true
+      this._gameTitleSprite.visible = false
     }
     terminate() {
       Scene_Base.prototype.terminate.call(this)
@@ -613,20 +970,139 @@ SOFTWARE
       let _Scene_Title_skipScrollComplete =
         Scene_Title.prototype.skipScrollComplete
       Scene_Title.prototype.skipScrollComplete = null
+      let _Scene_Title_clickNewGame = Scene_Title.prototype.clickNewGame
+      Scene_Title.prototype.clickNewGame = null
+      let _Scene_Title_yulaExitScreen = Scene_Title.prototype.yulaExitScreen
+      Scene_Title.prototype.yulaExitScreen = null
+      let _Scene_Title_waitTime = Scene_Title.prototype.waitTime
+      Scene_Title.prototype.waitTime = null
+      let _Scene_Title_msgBox = Scene_Title.prototype.msgBox
+      Scene_Title.prototype.msgBox = null
+      let _Scene_Title_commandStepList = Scene_Title.prototype.commandStepList
+      Scene_Title.prototype.commandStepList = null
+      let _Scene_Title_currentCommand = Scene_Title.prototype.currentCommand
+      Scene_Title.prototype.currentCommand = null
       let _Scene_Title_create = Scene_Title.prototype.create
       Scene_Title.prototype.create = function () {
         _Scene_Title_create.call(this)
         this.setupParameters()
         this.createScrollingContainer()
+        this.createMessageBox()
         this.createCharacter()
         this.createBalconyRailing()
         this.adjustChildren()
+        this.setupCutscene()
       }
       let _Scene_Title_setupParameters = Scene_Title.prototype.setupParameters
       Scene_Title.prototype.setupParameters = function () {
         this.titleTimer = 150
         this.skipScroll = false
         this.skipScrollComplete = false
+        this.yulaExitScreen = false
+      }
+      let _Scene_Title_setupCutscene = Scene_Title.prototype.setupCutscene
+      Scene_Title.prototype.setupCutscene = function () {
+        let padding = 20
+        this.commandStepList = []
+        let defaultWait = 300
+        let _gthis = this
+        this.commandStepList.push({
+          fn: function () {
+            let scaleX = _gthis.yula.scale.x
+            let scaleY = _gthis.yula.scale.y
+            let x =
+              _gthis.yula.x +
+              (_gthis.yula.width * scaleX) / 2 -
+              _gthis.msgBox.windowWidth / 2
+            let y = _gthis.yula.y - padding - _gthis.msgBox.height
+            _gthis.msgBox.move(x, y)
+            _gthis.msgBox.show()
+            let text =
+              "Oh! it's the North stars! ...oh! ...I can't believe we can see the constellation of Orion here!"
+            _gthis.msgBox.sendMsg(text)
+          },
+          waitTime: defaultWait * 2,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            let text = "Ah...stars are aweso...!"
+            _gthis.msgBox.sendMsg(text)
+          },
+          waitTime: defaultWait,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            _gthis.msgBox.x += 150;
+            let text = "Yula! It's 2AM, Go to sleep!"
+            _gthis.msgBox.sendMsg(text)
+          },
+          waitTime: defaultWait,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            _gthis.yula.scale.x = 2
+            let scaleX = _gthis.yula.scale.x
+            let scaleY = _gthis.yula.scale.y
+            let x =
+              _gthis.yula.x +
+              (_gthis.yula.width * scaleX) / 2 -
+              _gthis.msgBox.windowWidth / 2
+            let y = _gthis.yula.y - padding - _gthis.msgBox.height
+            _gthis.msgBox.move(x, y)
+            _gthis.msgBox.show()
+            let text = "Sorry daddy! I'm going to sleep!"
+            _gthis.msgBox.sendMsg(text)
+          },
+          waitTime: defaultWait,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            _gthis.yula.scale.x = -2
+            let scaleX = _gthis.yula.scale.x
+            let scaleY = _gthis.yula.scale.y
+            let x =
+              _gthis.yula.x +
+              (_gthis.yula.width * scaleX) / 2 -
+              _gthis.msgBox.windowWidth / 2
+            let y = _gthis.yula.y - padding - _gthis.msgBox.height
+            _gthis.msgBox.move(x, y)
+            _gthis.msgBox.show()
+            let text =
+              "Aww...if only my Dad shared the same excitement as me..."
+            _gthis.msgBox.sendMsg(text)
+          },
+          waitTime: defaultWait,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            let text = "He hasn't enjoyed looking at the stars since mom..."
+            _gthis.msgBox.sendMsg(text)
+          },
+          waitTime: defaultWait,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            let text =
+              "Well whatever! Time to go to sleep before the old geezer gets angry!"
+            _gthis.msgBox.sendMsg(text)
+          },
+          waitTime: defaultWait + 180,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            _gthis.msgBox.hide()
+            _gthis.yula.scale.x = 2
+            _gthis.yulaExitScreen = true
+          },
+          waitTime: 60,
+        })
+        this.commandStepList.push({
+          fn: function () {
+            _gthis.fadeOutAll()
+            SceneManager.goto(Scene_Map)
+          },
+          waitTime: 30,
+        })
       }
       let _Scene_Title_adjustChildren = Scene_Title.prototype.adjustChildren
       Scene_Title.prototype.adjustChildren = function () {
@@ -635,6 +1111,7 @@ SOFTWARE
         this.scrollingContainer.addChild(this.foregroundBalcony)
         this.scrollingContainer.addChild(this.yula)
         this.scrollingContainer.addChild(this.foregroundBalconyRailing)
+        this.addChild(this.msgBox)
         this.addChild(this._gameTitleSprite)
         this.addChild(this._windowLayer)
       }
@@ -644,13 +1121,21 @@ SOFTWARE
         this.scrollingContainer = new Sprite()
         this.scrollingContainer.y = 600
       }
+      let _Scene_Title_createMessageBox =
+        Scene_Title.prototype.createMessageBox
+      Scene_Title.prototype.createMessageBox = function () {
+        this.msgBox = KMessage.createMessageBox(0, 0, 200, 150)
+        this.msgBox.pText.style.wordWrapWidth -= 12
+        this.msgBox.setFontSize(18)
+        this.msgBox.hide()
+      }
       let _Scene_Title_createCharacter = Scene_Title.prototype.createCharacter
       Scene_Title.prototype.createCharacter = function () {
         this.yula = KCFrames.createSprite("Yula_Walk-Idle_51x103", 51, 103)
         this.yula.addAnimation("walk", [0, 1, 2, 3, 4, 5, 6, 7])
         this.yula.addAnimation("idle", [16, 17, 18, 19, 20, 21, 22, 23])
         this.yula.playAnimation("idle", true)
-        this.yula.setFPS(18)
+        this.yula.setFPS(10)
         this.yula.x = 528
         this.yula.y = 276
         this.yula.scale.y = 2
@@ -712,9 +1197,25 @@ SOFTWARE
       Scene_Title.prototype.adjustBackground = function () {}
       let _Scene_Title_update = Scene_Title.prototype.update
       Scene_Title.prototype.update = function () {
-        _Scene_Title_update.call(this)
+        Scene_Base.prototype.update.call(this)
         this.updateTitleState()
         this.updateCustomBackground()
+        if (this.clickNewGame) {
+          this.updateIntroScene()
+        }
+      }
+      let _Scene_Title_updateIntroScene =
+        Scene_Title.prototype.updateIntroScene
+      Scene_Title.prototype.updateIntroScene = function () {
+        if (this.waitTime <= 0) {
+          this.currentCommand = this.commandStepList.shift()
+          if (this.currentCommand != null) {
+            this.currentCommand.fn()
+            this.waitTime = this.currentCommand.waitTime
+          }
+        } else {
+          this.waitTime--
+        }
       }
       let _Scene_Title_updateTitleState =
         Scene_Title.prototype.updateTitleState
@@ -736,7 +1237,7 @@ SOFTWARE
           this.scrollingContainer.y = 0
           this.startFadeIn(30, false)
           this.skipScrollComplete = true
-          if (this.scrollingContainer.y == 0) {
+          if (this.scrollingContainer.y == 0 && !this.clickNewGame) {
             this._commandWindow.visible = true
             this._commandWindow.open()
           }
@@ -760,7 +1261,7 @@ SOFTWARE
               )
             }
           }
-          if (this.scrollingContainer.y == 0) {
+          if (this.scrollingContainer.y == 0 && !this.clickNewGame) {
             this._commandWindow.visible = true
             this._commandWindow.open()
           }
@@ -816,6 +1317,13 @@ SOFTWARE
         bitmap.fontSize = 72
         bitmap.drawText(text, x, y, maxWidth, 48, "center")
       }
+      let _Scene_Title_commandNewGame = Scene_Title.prototype.commandNewGame
+      Scene_Title.prototype.commandNewGame = function () {
+        DataManager.setupNewGame()
+        this._commandWindow.close()
+        this.clickNewGame = true
+        this._gameTitleSprite.visible = false
+      }
       let _Scene_Title_terminate = Scene_Title.prototype.terminate
       Scene_Title.prototype.terminate = function () {
         Scene_Base.prototype.terminate.call(this)
@@ -827,119 +1335,6 @@ SOFTWARE
   $hx_exports["KTitle"] = KTitle
   KTitle.__name__ = true
 
-  class FontManager {
-    static load(family, filename) {
-      if (FontManager._states[family] != "loaded") {
-        if (filename != null) {
-          FontManager.startLoading(family, FontManager.makeUrl(filename))
-        } else {
-          FontManager._urls[family] = ""
-          FontManager._states[family] = "loaded"
-        }
-      }
-    }
-    static isReady() {
-      let access = FontManager._states
-      let _g_keys = Reflect.fields(access)
-      let _g_index = 0
-      while (_g_index < _g_keys.length) {
-        let family = access[_g_keys[_g_index++]]
-        let state = FontManager._states[family]
-        if (state == "loading") {
-          return false;
-        }
-        if (state == "error") {
-          FontManager.throwLoadError(family)
-        }
-      }
-      return true;
-    }
-    static startLoading(family, url) {
-      let sourceUrl = "url(" + url + ")"
-      let font = new FontFace(family, sourceUrl)
-      FontManager._urls[family] = sourceUrl
-      FontManager._states[family] = "loading"
-      font
-        .load()
-        .then(function (loadedFont) {
-          window.document.fonts.add(font)
-          FontManager._states[family] = "loaded"
-          return 0;
-        })
-        .catch(function (_) {
-          return (FontManager._states[family] = "error");
-        })
-    }
-    static throwLoadError(family) {
-      let url = FontManager._urls[family]
-      let retry = function () {
-        FontManager.startLoading(family, url)
-      }
-      throw haxe_Exception.thrown(["LoadError", url, retry])
-    }
-    static makeUrl(fileName) {
-      return (
-        "fonts/" + Std.string(encodeURIComponent(fileName).replace(/%2F/g, "/"))
-      )
-    }
-    static load(family, filename) {
-      if (FontManager._states[family] != "loaded") {
-        if (filename != null) {
-          FontManager.startLoading(family, FontManager.makeUrl(filename))
-        } else {
-          FontManager._urls[family] = ""
-          FontManager._states[family] = "loaded"
-        }
-      }
-    }
-    static isReady() {
-      let access = FontManager._states
-      let _g_keys = Reflect.fields(access)
-      let _g_index = 0
-      while (_g_index < _g_keys.length) {
-        let family = access[_g_keys[_g_index++]]
-        let state = FontManager._states[family]
-        if (state == "loading") {
-          return false;
-        }
-        if (state == "error") {
-          FontManager.throwLoadError(family)
-        }
-      }
-      return true;
-    }
-    static startLoading(family, url) {
-      let sourceUrl = "url(" + url + ")"
-      let font = new FontFace(family, sourceUrl)
-      FontManager._urls[family] = sourceUrl
-      FontManager._states[family] = "loading"
-      font
-        .load()
-        .then(function (loadedFont) {
-          window.document.fonts.add(font)
-          FontManager._states[family] = "loaded"
-          return 0;
-        })
-        .catch(function (_) {
-          return (FontManager._states[family] = "error");
-        })
-    }
-    static throwLoadError(family) {
-      let url = FontManager._urls[family]
-      let retry = function () {
-        FontManager.startLoading(family, url)
-      }
-      throw haxe_Exception.thrown(["LoadError", url, retry])
-    }
-    static makeUrl(fileName) {
-      return (
-        "fonts/" + Std.string(encodeURIComponent(fileName).replace(/%2F/g, "/"))
-      )
-    }
-  }
-
-  $hx_exports["FontManager"] = FontManager
-  FontManager.__name__ = true
   {
     String.__name__ = true
     Array.__name__ = true
@@ -947,6 +1342,8 @@ SOFTWARE
   js_Boot.__toStr = {}.toString
   KCFrames.listener = new PIXI.utils.EventEmitter()
   KCFrames.KFrameSprite = kframes_KFrameSprite
+  KMsgBox.STAR_RADIUS = 10
+  KMsgBox.TEXT_FRAMETIME = 5
   KTitle.main()
 })(
   typeof exports != "undefined"

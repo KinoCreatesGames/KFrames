@@ -1,12 +1,12 @@
 package ktitle;
 
+import rm.scenes.Scene_Map;
+import kmessage.KMsgBox;
+import rm.managers.DataManager;
 import rm.core.Input;
 import core.MathExt.lerp;
 import js.Syntax;
-import utils.Fn;
-import core.Types.JsFn;
-import rm.windows.Window_TitleCommand;
-import rm.managers.FontManager;
+import kmessage.Main as KMsg;
 import rm.core.TouchInput;
 import kframes.KFrameSprite;
 import rm.core.TilingSprite;
@@ -25,6 +25,11 @@ using core.MathExt;
  * Custom title screen for
  * for Stargazers.
  */
+typedef FnStep = {
+  fn:Void -> Void,
+  waitTime:Int,
+}
+
 @:native('KCustomTitleScene')
 @:expose('KcustomTitleScene')
 @:keep
@@ -37,15 +42,24 @@ class KCustomTitleScene extends Scene_Title {
   public var titleTimer:Int;
   public var skipScroll:Bool;
   public var skipScrollComplete:Bool;
+  public var clickNewGame:Bool;
+  public var yulaExitScreen:Bool;
+  // Wait time between each element of the scene
+  public var waitTime:Int; // In Frames
+  public var msgBox:KMsgBox;
+  public var commandStepList:Array<FnStep>;
+  public var currentCommand:FnStep;
 
   override public function create() {
     // Create Scene Title Functionality
     untyped _Scene_Title_create.call(this);
     this.setupParameters();
     this.createScrollingContainer();
+    this.createMessageBox();
     this.createCharacter();
     this.createBalconyRailing();
     this.adjustChildren();
+    this.setupCutscene();
   }
 
   public function setupParameters() {
@@ -53,6 +67,104 @@ class KCustomTitleScene extends Scene_Title {
     this.titleTimer = 150;
     this.skipScroll = false;
     this.skipScrollComplete = false;
+    this.yulaExitScreen = false;
+  }
+
+  public function setupCutscene() {
+    var padding = 20;
+    commandStepList = [];
+    var defaultWait = 300;
+    commandStepList.push({
+      fn: () -> {
+        // orient message box at Yula's position
+        var scaleX = yula.scale.x;
+        var scaleY = yula.scale.y;
+        var x = ((yula.x + (yula.width * scaleX) / 2))
+          - (this.msgBox.windowWidth / 2);
+        var y = (yula.y - padding) - this.msgBox.height;
+        msgBox.move(x, y);
+        msgBox.show();
+        var text = "Oh! it's the North stars! ...oh! ...I can't believe we can see the constellation of Orion here!";
+        msgBox.sendMsg(text);
+      },
+      waitTime: defaultWait * 2
+    });
+    commandStepList.push({
+      fn: () -> {
+        var text = "Ah...stars are aweso...!";
+        msgBox.sendMsg(text);
+      },
+      waitTime: defaultWait
+    });
+    commandStepList.push({
+      fn: () -> {
+        msgBox.x += 150;
+        var text = "Yula! It's 2AM, Go to sleep!";
+        msgBox.sendMsg(text);
+      },
+      waitTime: defaultWait
+    });
+    commandStepList.push({
+      fn: () -> {
+        yula.scale.x = 2;
+        var scaleX = yula.scale.x;
+        var scaleY = yula.scale.y;
+        var x = ((yula.x + (yula.width * scaleX) / 2))
+          - (this.msgBox.windowWidth / 2);
+        var y = (yula.y - padding) - this.msgBox.height;
+        msgBox.move(x, y);
+        msgBox.show();
+        var text = "Sorry daddy! I'm going to sleep!";
+        msgBox.sendMsg(text);
+      },
+      waitTime: defaultWait
+    });
+    commandStepList.push({
+      fn: () -> {
+        yula.scale.x = -2;
+        var scaleX = yula.scale.x;
+        var scaleY = yula.scale.y;
+        var x = ((yula.x + (yula.width * scaleX) / 2))
+          - (this.msgBox.windowWidth / 2);
+        var y = (yula.y - padding) - this.msgBox.height;
+        msgBox.move(x, y);
+        msgBox.show();
+        var text = "Aww...if only my Dad shared the same excitement as me...";
+        msgBox.sendMsg(text);
+      },
+      waitTime: defaultWait
+    });
+    commandStepList.push({
+      fn: () -> {
+        var text = "He hasn't enjoyed looking at the stars since mom...";
+        msgBox.sendMsg(text);
+      },
+      waitTime: defaultWait
+    });
+    commandStepList.push({
+      fn: () -> {
+        var text = "Well whatever! Time to go to sleep before the old geezer gets angry!";
+        msgBox.sendMsg(text);
+      },
+      waitTime: defaultWait + 180
+    });
+    commandStepList.push({
+      fn: () -> {
+        msgBox.hide();
+        // Flip Sprite
+        yula.scale.x = 2;
+        // Move to the door run from here
+        yulaExitScreen = true;
+      },
+      waitTime: 60
+    });
+    commandStepList.push({
+      fn: () -> {
+        this.fadeOutAll();
+        SceneManager.goto(Scene_Map);
+      },
+      waitTime: 30
+    });
   }
 
   public function adjustChildren() {
@@ -63,6 +175,7 @@ class KCustomTitleScene extends Scene_Title {
     this.scrollingContainer.addChild(this.foregroundBalcony);
     this.scrollingContainer.addChild(this.yula);
     this.scrollingContainer.addChild(this.foregroundBalconyRailing);
+    this.addChild(this.msgBox);
     this.addChild(this._gameTitleSprite);
     this.addChild(this._windowLayer);
   }
@@ -72,12 +185,19 @@ class KCustomTitleScene extends Scene_Title {
     this.scrollingContainer.y = 600;
   }
 
+  public function createMessageBox() {
+    msgBox = KMsg.createMessageBox(0, 0, 200, 150);
+    msgBox.pText.style.wordWrapWidth -= 12;
+    msgBox.setFontSize(18);
+    msgBox.hide();
+  }
+
   public function createCharacter() {
     yula = KFrame.createSprite('Yula_Walk-Idle_51x103', 51, 103);
     yula.addAnimation('walk', [0, 1, 2, 3, 4, 5, 6, 7]);
     yula.addAnimation('idle', [16, 17, 18, 19, 20, 21, 22, 23]);
     yula.playAnimation('idle', true);
-    yula.setFPS(18);
+    yula.setFPS(10);
     yula.x = 528;
     yula.y = 276;
     yula.scale.y = 2;
@@ -133,9 +253,29 @@ class KCustomTitleScene extends Scene_Title {
   }
 
   override function update() {
-    untyped _Scene_Title_update.call(this);
+    // untyped _Scene_Title_update.call(this);
+    untyped Scene_Base.prototype.update.call(this);
     this.updateTitleState();
     this.updateCustomBackground();
+    // Only gets processed after new game is clicked
+    if (this.clickNewGame) {
+      this.updateIntroScene();
+    }
+  }
+
+  /**
+   * Updates the intro cutscene 
+   */
+  public function updateIntroScene() {
+    if (this.waitTime <= 0) {
+      this.currentCommand = this.commandStepList.shift();
+      if (this.currentCommand != null) {
+        this.currentCommand.fn();
+        this.waitTime = this.currentCommand.waitTime;
+      }
+    } else {
+      this.waitTime--;
+    }
   }
 
   public function updateTitleState() {
@@ -154,7 +294,7 @@ class KCustomTitleScene extends Scene_Title {
       this.scrollingContainer.y = 0;
       this.startFadeIn(30, false);
       this.skipScrollComplete = true;
-      if (this.scrollingContainer.y == 0) {
+      if (this.scrollingContainer.y == 0 && !this.clickNewGame) {
         this._commandWindow.visible = true;
         this._commandWindow.open();
       }
@@ -170,7 +310,7 @@ class KCustomTitleScene extends Scene_Title {
               0.0025)).clampf(0, 600);
           }
         }
-        if (this.scrollingContainer.y == 0) {
+        if (this.scrollingContainer.y == 0 && !this.clickNewGame) {
           this._commandWindow.visible = true;
           this._commandWindow.open();
         }
@@ -218,6 +358,13 @@ this.addCommand(TextManager.options, \"options\");};
     bitmap.outlineWidth = 8;
     bitmap.fontSize = 72;
     bitmap.drawText(text, x, y, maxWidth, 48, 'center');
+  }
+
+  override public function commandNewGame() {
+    DataManager.setupNewGame();
+    this._commandWindow.close();
+    this.clickNewGame = true;
+    this._gameTitleSprite.visible = false;
   }
 
   override public function terminate() {

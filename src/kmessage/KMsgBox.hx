@@ -4,8 +4,6 @@ import pixi.core.renderers.webgl.Renderer;
 import pixi.core.Pixi.ScaleModes;
 import rm.core.Bitmap;
 import rm.core.TilingSprite;
-import core.Amaryllis.createEventEmitter;
-import pixi.interaction.EventEmitter;
 import pixi.core.text.Text;
 import utils.Comment;
 import pixi.core.graphics.Graphics;
@@ -165,10 +163,11 @@ class KMsgBox extends Graphics {
   public function drawTilingBackground() {
     var starGraphic = new Graphics();
     starGraphic.beginFill(0x1A1A1A, 0.75);
-    var starCount = Math.floor(this.windowWidth / STAR_RADIUS);
-    var starRows = Math.floor(this.windowHeight / STAR_RADIUS);
-    var starSpacing = 25;
-    for (i in 0...starCount) {
+    var starCount = Math.floor(this.windowWidth / (STAR_RADIUS * 2));
+    var starRows = Math.floor(this.windowHeight / (STAR_RADIUS * 2));
+    var starSpacing = STAR_RADIUS * 2;
+    trace(starCount, starRows);
+    for (i in 1...starCount) {
       for (y in 0...starRows) {
         starGraphic.drawStar(i * starSpacing, y * starSpacing, 5, STAR_RADIUS,
           5, 0);
@@ -179,17 +178,18 @@ class KMsgBox extends Graphics {
     var renderer:Renderer = untyped rm.core.Graphics.app.renderer;
     var texture = renderer.generateTexture(starGraphic, ScaleModes.DEFAULT, 1);
     var canvas = renderer.extract.canvas(texture);
+    var padding = 4;
     texture.destroy(true);
     this.tilingBackground.bitmap = new Bitmap(this.windowWidth
-      - (borderSize * 2),
+      - ((borderSize * 2) + padding),
       this.windowHeight
-      - (borderSize * 2));
+      - ((borderSize * 2) + padding));
     var bitmap = this.tilingBackground.bitmap;
     bitmap.context.drawImage(canvas, 0, 0);
     bitmap.baseTexture.update();
     // Always use move command
-    this.tilingBackground.move(this.borderSize, this.borderSize, bitmap.width,
-      bitmap.height);
+    this.tilingBackground.move(this.borderSize * 2, this.borderSize * 2,
+      bitmap.width, bitmap.height);
   }
 
   public function drawIndicatorStar() {

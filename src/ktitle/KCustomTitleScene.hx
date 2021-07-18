@@ -85,14 +85,14 @@ class KCustomTitleScene extends Scene_Title {
         msgBox.move(x, y);
         msgBox.show();
         var text = "Oh! it's the North stars! ...oh! ...I can't believe we can see the constellation of Orion here!";
-        msgBox.sendMsg(text);
+        msgBox.sendMsgC('yula', text);
       },
       waitTime: defaultWait * 2
     });
     commandStepList.push({
       fn: () -> {
         var text = "Ah...stars are aweso...!";
-        msgBox.sendMsg(text);
+        msgBox.sendMsgC('yula', text);
       },
       waitTime: defaultWait
     });
@@ -100,7 +100,7 @@ class KCustomTitleScene extends Scene_Title {
       fn: () -> {
         msgBox.x += 150;
         var text = "Yula! It's 2AM, Go to sleep!";
-        msgBox.sendMsg(text);
+        msgBox.sendMsgC('dad', text);
       },
       waitTime: defaultWait
     });
@@ -115,7 +115,7 @@ class KCustomTitleScene extends Scene_Title {
         msgBox.move(x, y);
         msgBox.show();
         var text = "Sorry daddy! I'm going to sleep!";
-        msgBox.sendMsg(text);
+        msgBox.sendMsgC('yula', text);
       },
       waitTime: defaultWait
     });
@@ -130,21 +130,21 @@ class KCustomTitleScene extends Scene_Title {
         msgBox.move(x, y);
         msgBox.show();
         var text = "Aww...if only my Dad shared the same excitement as me...";
-        msgBox.sendMsg(text);
+        msgBox.sendMsgC('yula', text);
       },
       waitTime: defaultWait
     });
     commandStepList.push({
       fn: () -> {
         var text = "He hasn't enjoyed looking at the stars since mom...";
-        msgBox.sendMsg(text);
+        msgBox.sendMsgC('yula', text);
       },
       waitTime: defaultWait
     });
     commandStepList.push({
       fn: () -> {
         var text = "Well whatever! Time to go to sleep before the old geezer gets angry!";
-        msgBox.sendMsg(text);
+        msgBox.sendMsgC('yula', text);
       },
       waitTime: defaultWait + 180
     });

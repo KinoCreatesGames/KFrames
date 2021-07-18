@@ -2,7 +2,7 @@
  *
  *  KTitle.js
  * 
- *  Build Date: 7/15/2021
+ *  Build Date: 7/18/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -60,6 +60,18 @@ SOFTWARE
   }
 
   EReg.__name__ = true
+  class Lambda {
+    static exists(it, f) {
+      let x = $getIterator(it)
+      while (x.hasNext())
+        if (f(x.next())) {
+          return true;
+        }
+      return false;
+    }
+  }
+
+  Lambda.__name__ = true
   Math.__name__ = true
   class Std {
     static string(s) {
@@ -401,6 +413,8 @@ SOFTWARE
       this.cornerRadius = 10
       this.textTime = 5
       this.textTimer = this.textTime
+      this.character = ""
+      this.vowelFrameWait = 0
       this.pText = new PIXI.Text(this.text, {
         fontSize: this.fontSize,
         fill: this.fontColor,
@@ -432,6 +446,12 @@ SOFTWARE
       this.pText.text = ""
       this.starIndicator.visible = false
       this.emit("sendMsg", this, msg)
+      this.character = ""
+      this.previousVowel = null
+    }
+    sendMsgC(charName, msg) {
+      this.sendMsg(msg)
+      this.character = charName.toLowerCase()
     }
     drawMessageBox() {
       this.clear()
@@ -472,7 +492,7 @@ SOFTWARE
       let starSpacing = 20
       haxe_Log.trace(starCount, {
         fileName: "src/kmessage/KMsgBox.hx",
-        lineNumber: 169,
+        lineNumber: 252,
         className: "kmessage.KMsgBox",
         methodName: "drawTilingBackground",
         customParams: [starRows],
@@ -533,6 +553,11 @@ SOFTWARE
       if (this.textTimer <= 0) {
         this.textTimer = this.textTime
         this.pText.text = this.text.substring(0, this.pText.text.length + 1)
+        if (this.character != null || this.character.length > 0) {
+          this.sendVowelSound(
+            this.pText.text.charAt(this.pText.text.length - 1)
+          )
+        }
       }
       if (this.text != this.pText.text) {
         this.textTimer--
@@ -541,6 +566,73 @@ SOFTWARE
           this.emit("endMsg")
         }
         this.starIndicator.visible = true
+      }
+    }
+    sendVowelSound(character) {
+      let _gthis = this
+      let charVowel = character.toUpperCase()
+      let baseAudioParams = {
+        pitch: 100,
+        pan: 0,
+        pos: 0,
+        volume: 40,
+        name: "",
+      }
+      let _g = []
+      let _g1 = 0
+      let _g2 = ["A", "E", "I", "O", "U"]
+      while (_g1 < _g2.length) {
+        let v = _g2[_g1]
+        ++_g1
+        if (v != _gthis.previousVowel) {
+          _g.push(v)
+        }
+      }
+      let temp = _g
+      let result = temp[Math.floor(temp.length * Math.random())]
+      haxe_Log.trace(result, {
+        fileName: "src/kmessage/KMsgBox.hx",
+        lineNumber: 336,
+        className: "kmessage.KMsgBox",
+        methodName: "sendVowelSound",
+        customParams: [temp],
+      })
+      switch (result) {
+        case "A":
+          let vowel = KMsgBox.VOCAL_DIC.h[this.character].A
+          baseAudioParams.name = "Vocals" + "/" + this.character + "/" + vowel
+          break
+        case "E":
+          let vowel1 = KMsgBox.VOCAL_DIC.h[this.character].E
+          baseAudioParams.name = "Vocals" + "/" + this.character + "/" + vowel1
+          break
+        case "I":
+          let vowel2 = KMsgBox.VOCAL_DIC.h[this.character].I
+          baseAudioParams.name = "Vocals" + "/" + this.character + "/" + vowel2
+          break
+        case "O":
+          let vowel3 = KMsgBox.VOCAL_DIC.h[this.character].O
+          baseAudioParams.name = "Vocals" + "/" + this.character + "/" + vowel3
+          break
+        case "U":
+          let vowel4 = KMsgBox.VOCAL_DIC.h[this.character].U
+          baseAudioParams.name = "Vocals" + "/" + this.character + "/" + vowel4
+          break
+      }
+
+      let availableSe = Lambda.exists(AudioManager._seBuffers, function (se) {
+        if (!se.isPlaying()) {
+          return se.name == baseAudioParams.name;
+        } else {
+          return false;
+        }
+      })
+      if (baseAudioParams.name.length > 0 && this.vowelFrameWait <= 0) {
+        AudioManager.playSe(baseAudioParams)
+        this.previousVowel = result
+        this.vowelFrameWait = 1
+      } else {
+        this.vowelFrameWait--
       }
     }
     setBgColor(color) {
@@ -663,7 +755,8 @@ SOFTWARE
             _gthis.yula.y - padding - _gthis.msgBox.height
           )
           _gthis.msgBox.show()
-          _gthis.msgBox.sendMsg(
+          _gthis.msgBox.sendMsgC(
+            "yula",
             "Oh! it's the North stars! ...oh! ...I can't believe we can see the constellation of Orion here!"
           )
         },
@@ -671,14 +764,14 @@ SOFTWARE
       })
       this.commandStepList.push({
         fn: function () {
-          _gthis.msgBox.sendMsg("Ah...stars are aweso...!")
+          _gthis.msgBox.sendMsgC("yula", "Ah...stars are aweso...!")
         },
         waitTime: 300,
       })
       this.commandStepList.push({
         fn: function () {
           _gthis.msgBox.x += 150;
-          _gthis.msgBox.sendMsg("Yula! It's 2AM, Go to sleep!")
+          _gthis.msgBox.sendMsgC("dad", "Yula! It's 2AM, Go to sleep!")
         },
         waitTime: 300,
       })
@@ -692,7 +785,7 @@ SOFTWARE
             _gthis.yula.y - padding - _gthis.msgBox.height
           )
           _gthis.msgBox.show()
-          _gthis.msgBox.sendMsg("Sorry daddy! I'm going to sleep!")
+          _gthis.msgBox.sendMsgC("yula", "Sorry daddy! I'm going to sleep!")
         },
         waitTime: 300,
       })
@@ -706,7 +799,8 @@ SOFTWARE
             _gthis.yula.y - padding - _gthis.msgBox.height
           )
           _gthis.msgBox.show()
-          _gthis.msgBox.sendMsg(
+          _gthis.msgBox.sendMsgC(
+            "yula",
             "Aww...if only my Dad shared the same excitement as me..."
           )
         },
@@ -714,7 +808,8 @@ SOFTWARE
       })
       this.commandStepList.push({
         fn: function () {
-          _gthis.msgBox.sendMsg(
+          _gthis.msgBox.sendMsgC(
+            "yula",
             "He hasn't enjoyed looking at the stars since mom..."
           )
         },
@@ -722,7 +817,8 @@ SOFTWARE
       })
       this.commandStepList.push({
         fn: function () {
-          _gthis.msgBox.sendMsg(
+          _gthis.msgBox.sendMsgC(
+            "yula",
             "Well whatever! Time to go to sleep before the old geezer gets angry!"
           )
         },
@@ -1020,14 +1116,14 @@ SOFTWARE
             _gthis.msgBox.show()
             let text =
               "Oh! it's the North stars! ...oh! ...I can't believe we can see the constellation of Orion here!"
-            _gthis.msgBox.sendMsg(text)
+            _gthis.msgBox.sendMsgC("yula", text)
           },
           waitTime: defaultWait * 2,
         })
         this.commandStepList.push({
           fn: function () {
             let text = "Ah...stars are aweso...!"
-            _gthis.msgBox.sendMsg(text)
+            _gthis.msgBox.sendMsgC("yula", text)
           },
           waitTime: defaultWait,
         })
@@ -1035,7 +1131,7 @@ SOFTWARE
           fn: function () {
             _gthis.msgBox.x += 150;
             let text = "Yula! It's 2AM, Go to sleep!"
-            _gthis.msgBox.sendMsg(text)
+            _gthis.msgBox.sendMsgC("dad", text)
           },
           waitTime: defaultWait,
         })
@@ -1052,7 +1148,7 @@ SOFTWARE
             _gthis.msgBox.move(x, y)
             _gthis.msgBox.show()
             let text = "Sorry daddy! I'm going to sleep!"
-            _gthis.msgBox.sendMsg(text)
+            _gthis.msgBox.sendMsgC("yula", text)
           },
           waitTime: defaultWait,
         })
@@ -1070,14 +1166,14 @@ SOFTWARE
             _gthis.msgBox.show()
             let text =
               "Aww...if only my Dad shared the same excitement as me..."
-            _gthis.msgBox.sendMsg(text)
+            _gthis.msgBox.sendMsgC("yula", text)
           },
           waitTime: defaultWait,
         })
         this.commandStepList.push({
           fn: function () {
             let text = "He hasn't enjoyed looking at the stars since mom..."
-            _gthis.msgBox.sendMsg(text)
+            _gthis.msgBox.sendMsgC("yula", text)
           },
           waitTime: defaultWait,
         })
@@ -1085,7 +1181,7 @@ SOFTWARE
           fn: function () {
             let text =
               "Well whatever! Time to go to sleep before the old geezer gets angry!"
-            _gthis.msgBox.sendMsg(text)
+            _gthis.msgBox.sendMsgC("yula", text)
           },
           waitTime: defaultWait + 180,
         })
@@ -1336,6 +1432,10 @@ SOFTWARE
   $hx_exports["KTitle"] = KTitle
   KTitle.__name__ = true
 
+  function $getIterator(o) {
+    if (o instanceof Array) return new haxe_iterators_ArrayIterator(o);
+    else return o.iterator();
+  }
   {
     String.__name__ = true
     Array.__name__ = true
@@ -1343,8 +1443,51 @@ SOFTWARE
   js_Boot.__toStr = {}.toString
   KCFrames.listener = new PIXI.utils.EventEmitter()
   KCFrames.KFrameSprite = kframes_KFrameSprite
+  KMsgBox.VOCAL_PATH = "Vocals"
+  KMsgBox.VOCAL_DIC = (function ($this) {
+    var $r
+    let _g = new haxe_ds_StringMap()
+    _g.h["haley"] = {
+      A: "JDSherbert - Vocals - [Stargazer] Haley A",
+      I: "JDSherbert - Vocals - [Stargazer] Haley I",
+      E: "JDSherbert - Vocals - [Stargazer] Haley E",
+      O: "JDSherbert - Vocals - [Stargazer] Haley O",
+      U: "JDSherbert - Vocals - [Stargazer] Haley U",
+    }
+    _g.h["dad"] = {
+      A: "JDSherbert - Vocals - [Stargazer] Dad A",
+      I: "JDSherbert - Vocals - [Stargazer] Dad I",
+      E: "JDSherbert - Vocals - [Stargazer] Dad E",
+      O: "JDSherbert - Vocals - [Stargazer] Dad O",
+      U: "JDSherbert - Vocals - [Stargazer] Dad U",
+    }
+    _g.h["yula"] = {
+      A: "JDSherbert - Vocals - [Stargazer] Yula A",
+      E: "JDSherbert - Vocals - [Stargazer] Yula E",
+      I: "JDSherbert - Vocals - [Stargazer] Yula I",
+      O: "JDSherbert - Vocals - [Stargazer] Yula O",
+      U: "JDSherbert - Vocals - [Stargazer] Yula U",
+    }
+    _g.h["spacemom"] = {
+      A: "JDSherbert - Vocals - [Stargazer] SpaceMom A",
+      E: "JDSherbert - Vocals - [Stargazer] SpaceMom E",
+      I: "JDSherbert - Vocals - [Stargazer] SpaceMom I",
+      O: "JDSherbert - Vocals - [Stargazer] SpaceMom O",
+      U: "JDSherbert - Vocals - [Stargazer] SpaceMom U",
+    }
+    _g.h["basic"] = {
+      A: "JDSherbert - Vocals - [Stargazer] Basic Female A",
+      E: "JDSherbert - Vocals - [Stargazer] Basic Female E",
+      I: "JDSherbert - Vocals - [Stargazer] Basic Female I",
+      O: "JDSherbert - Vocals - [Stargazer] Basic Female O",
+      U: "JDSherbert - Vocals - [Stargazer] Basic Female U",
+    }
+    $r = _g
+    return $r;
+  })(this)
   KMsgBox.STAR_RADIUS = 10
   KMsgBox.TEXT_FRAMETIME = 5
+  KMsgBox.VOWEL_WAIT = 1
   KTitle.main()
 })(
   typeof exports != "undefined"

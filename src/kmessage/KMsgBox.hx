@@ -1,5 +1,7 @@
 package kmessage;
 
+import rm.types.RM.AudioParameters;
+import rm.managers.AudioManager;
 import pixi.core.renderers.webgl.Renderer;
 import pixi.core.Pixi.ScaleModes;
 import rm.core.Bitmap;
@@ -7,6 +9,8 @@ import rm.core.TilingSprite;
 import pixi.core.text.Text;
 import utils.Comment;
 import pixi.core.graphics.Graphics;
+
+using Lambda;
 
 typedef Color = Int;
 
@@ -20,9 +24,73 @@ enum abstract MsgEvents(String) from String to String {
   var SHOW_WIN:String = 'showWindow';
 }
 
+enum abstract CharacterName(String) from String to String {
+  var HALEY:String = 'haley';
+  var YULA:String = 'yula';
+  var BASIC:String = 'basic';
+  var MOM:String = 'spacemom';
+  var DAD:String = 'dad';
+}
+
+enum abstract Vowel(String) from String to String {
+  var A:String = 'A';
+  var E:String = 'E';
+  var I:String = 'I';
+  var O:String = 'O';
+  var U:String = 'U';
+}
+
+typedef SoundBank = {
+  var A:String;
+  var E:String;
+  var I:String;
+  var O:String;
+  var U:String;
+}
+
 @:native('KMsgBox')
 @:expose('KMsgBox')
 class KMsgBox extends Graphics {
+  public static inline var VOCAL_PATH:String = 'Vocals';
+
+  public static var VOCAL_DIC:Map<CharacterName, SoundBank> = [
+    HALEY => {
+      A: 'JDSherbert - Vocals - [Stargazer] Haley A',
+      I: 'JDSherbert - Vocals - [Stargazer] Haley I',
+      E: 'JDSherbert - Vocals - [Stargazer] Haley E',
+      O: 'JDSherbert - Vocals - [Stargazer] Haley O',
+      U: 'JDSherbert - Vocals - [Stargazer] Haley U'
+    },
+    DAD => {
+      A: 'JDSherbert - Vocals - [Stargazer] Dad A',
+      I: 'JDSherbert - Vocals - [Stargazer] Dad I',
+      E: 'JDSherbert - Vocals - [Stargazer] Dad E',
+      O: 'JDSherbert - Vocals - [Stargazer] Dad O',
+      U: 'JDSherbert - Vocals - [Stargazer] Dad U'
+    },
+    YULA => {
+      A: 'JDSherbert - Vocals - [Stargazer] Yula A',
+      E: 'JDSherbert - Vocals - [Stargazer] Yula E',
+      I: 'JDSherbert - Vocals - [Stargazer] Yula I',
+      O: 'JDSherbert - Vocals - [Stargazer] Yula O',
+      U: 'JDSherbert - Vocals - [Stargazer] Yula U'
+    },
+    MOM => {
+      A: 'JDSherbert - Vocals - [Stargazer] SpaceMom A',
+      E: 'JDSherbert - Vocals - [Stargazer] SpaceMom E',
+      I: 'JDSherbert - Vocals - [Stargazer] SpaceMom I',
+      O: 'JDSherbert - Vocals - [Stargazer] SpaceMom O',
+      U: 'JDSherbert - Vocals - [Stargazer] SpaceMom U'
+    },
+    BASIC => {
+      A: 'JDSherbert - Vocals - [Stargazer] Basic Female A',
+      E: 'JDSherbert - Vocals - [Stargazer] Basic Female E',
+      I: 'JDSherbert - Vocals - [Stargazer] Basic Female I',
+      O: 'JDSherbert - Vocals - [Stargazer] Basic Female O',
+      U: 'JDSherbert - Vocals - [Stargazer] Basic Female U'
+    }
+  ];
+
   /**
    * Background color; defaults to black(0x000000).
    */
@@ -82,6 +150,12 @@ class KMsgBox extends Graphics {
 
   public var tilingBackground:TilingSprite;
 
+  public var character:CharacterName;
+  public var previousVowel:Vowel;
+  public var vowelFrameWait:Int;
+
+  public static inline var VOWEL_WAIT:Int = 1;
+
   public function new(x:Float = 0, y:Float = 0, width:Float = 100,
       height:Float = 100) {
     super();
@@ -102,6 +176,8 @@ class KMsgBox extends Graphics {
     this.cornerRadius = 10;
     this.textTime = TEXT_FRAMETIME; // Default value
     this.textTimer = this.textTime;
+    this.character = '';
+    this.vowelFrameWait = 0;
 
     this.pText = new Text(text, {
       fontSize: this.fontSize,
@@ -134,6 +210,13 @@ class KMsgBox extends Graphics {
     this.pText.text = '';
     this.starIndicator.visible = false;
     this.emit(SEND_MSG, this, msg);
+    this.character = '';
+    this.previousVowel = null;
+  }
+
+  public function sendMsgC(charName:String, msg:String) {
+    this.sendMsg(msg);
+    this.character = charName.toLowerCase();
   }
 
   public function drawMessageBox() {
@@ -220,15 +303,62 @@ class KMsgBox extends Graphics {
     if (this.textTimer <= 0) {
       this.textTimer = this.textTime;
       this.pText.text = this.text.substring(0, this.pText.text.length + 1);
+      var char = this.pText.text.charAt(this.pText.text.length - 1);
+      var characterAsString:String = this.character;
+      if (this.character != null || characterAsString.length > 0) {
+        sendVowelSound(char);
+      }
     }
 
     if (this.text != pText.text) {
       this.textTimer--;
+      // this.vowelFrameWait--;
     } else {
       if (!this.starIndicator.visible) {
         this.emit(END_MSG);
       }
       this.starIndicator.visible = true;
+    }
+  }
+
+  public function sendVowelSound(character:String) {
+    var charVowel:Vowel = character.toUpperCase();
+    var baseAudioParams:AudioParameters = {
+      pitch: 100,
+      pan: 0,
+      pos: 0,
+      volume: 40,
+      name: ''
+    };
+    var temp = [A, E, I, O, U].filter((el) -> el != previousVowel);
+    var result = temp[Math.floor(temp.length * Math.random())];
+
+    trace(result, temp);
+    switch (result) {
+      case A:
+        var vowel = VOCAL_DIC.get(this.character).A;
+        baseAudioParams.name = '${VOCAL_PATH}/${this.character}/${vowel}';
+      case E:
+        var vowel = VOCAL_DIC.get(this.character).E;
+        baseAudioParams.name = '${VOCAL_PATH}/${this.character}/${vowel}';
+      case I:
+        var vowel = VOCAL_DIC.get(this.character).I;
+        baseAudioParams.name = '${VOCAL_PATH}/${this.character}/${vowel}';
+      case O:
+        var vowel = VOCAL_DIC.get(this.character).O;
+        baseAudioParams.name = '${VOCAL_PATH}/${this.character}/${vowel}';
+      case U:
+        var vowel = VOCAL_DIC.get(this.character).U;
+        baseAudioParams.name = '${VOCAL_PATH}/${this.character}/${vowel}';
+    }
+    var availableSe = AudioManager.__seBuffers.exists((se) -> !se.isPlaying()
+      && untyped se.name == baseAudioParams.name);
+    if (baseAudioParams.name.length > 0 && vowelFrameWait <= 0) {
+      AudioManager.playSe(baseAudioParams);
+      this.previousVowel = result;
+      this.vowelFrameWait = VOWEL_WAIT;
+    } else {
+      this.vowelFrameWait--;
     }
   }
 

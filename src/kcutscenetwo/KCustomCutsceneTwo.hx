@@ -44,6 +44,7 @@ class KCustomCutsceneTwo extends Scene_Base {
   public var startPartThree:Bool;
   public var complete:Bool;
   public var momFade:Bool;
+  public var startAmuletFall:Bool;
 
   // Defautl Wait Time of 3 seconds
   public static inline var DEFAULT_WAIT_TIME:Int = 180;
@@ -414,6 +415,9 @@ class KCustomCutsceneTwo extends Scene_Base {
         var text = "There isn't much time left...";
         msgBox.sendMsgC('spaceMom', text);
         this.momFade = true;
+        this.startAmuletFall = true;
+        // play falling animation
+        this.amulet.playAnimation('falling', false);
       },
       waitTime: defaultWait
     });

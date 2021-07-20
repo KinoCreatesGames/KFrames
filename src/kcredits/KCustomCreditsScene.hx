@@ -19,6 +19,8 @@ import js.Browser;
 import utils.Fn;
 import rm.scenes.Scene_Base;
 
+using core.MathExt;
+
 @:native('KCustomCreditsScene')
 @:expose('KCustomCreditsScene')
 class KCustomCreditsScene extends Scene_Base {
@@ -33,6 +35,9 @@ class KCustomCreditsScene extends Scene_Base {
   public var background:TilingSprite;
   public var startFade:Bool;
   public var initialFadeTimer:Int;
+  public var thankYou:Sprite;
+  public var startThankYouFade:Bool;
+  public var seenThankYou:Bool;
 
   public static inline var INITIAL_FADE = 600;
 
@@ -48,6 +53,7 @@ class KCustomCreditsScene extends Scene_Base {
   override public function create() {
     super.create();
     this.startFade = false;
+    this.seenThankYou = false;
     // Start with a fade in on the credit screen
     this.startFadeIn(INITIAL_FADE, false);
     this.initialFadeTimer = INITIAL_FADE;
@@ -57,6 +63,7 @@ class KCustomCreditsScene extends Scene_Base {
     createTitle();
     createCredits();
     createFin();
+    createThankYou();
     this.startBackgroundMusic();
   }
 
@@ -176,6 +183,14 @@ class KCustomCreditsScene extends Scene_Base {
     this.addChild(finText);
   }
 
+  public function createThankYou() {
+    var bitmap = ImageManager.loadPicture('ThankYouV3');
+    thankYou = new Sprite(bitmap);
+
+    this.thankYou.visible = false;
+    this.addChild(this.thankYou);
+  }
+
   override public function update() {
     super.update();
     updateCreditScreen();
@@ -213,15 +228,31 @@ class KCustomCreditsScene extends Scene_Base {
   }
 
   public function updateButtonPress() {
-    if (this.finText.alpha > .90
-      && (Input.isTriggered('ok') || Input.isTriggered('cancel')
-        || TouchInput.isTriggered())
-      && !this.startFade) {
+    var triggerInput = (Input.isTriggered('ok')
+      || Input.isTriggered('cancel') || TouchInput.isTriggered());
+    if (this.finText.alpha > .90 && triggerInput && !this.startFade) {
       this.startFade = true;
       this.startFadeOut(120, false);
     }
-    if (this._fadeDuration <= 0 && this.startFade) {
+
+    if (this._fadeDuration <= 0
+      && this.startFade
+      && this.seenThankYou
+      && triggerInput) {
+      this.fadeOutAll();
       this.popScene();
+    } else if (this.__fadeDuration >= 1
+      && this._fadeDuration <= 30
+      && this.startFade
+      && this.startThankYouFade) {
+      this.thankYou.visible = true;
+    } else if (this._fadeDuration <= 0 && this.startFade
+      && this.startThankYouFade) {
+      this.seenThankYou = true;
+    } else if (this._fadeDuration <= 0 && this.startFade) {
+      this.startFadeIn(120, true);
+      this.startThankYouFade = true;
+      this.thankYou.visible = true;
     }
   }
 

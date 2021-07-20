@@ -2,7 +2,7 @@
  *
  *  KCreditsMV.js
  * 
- *  Build Date: 7/18/2021
+ *  Build Date: 7/19/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -206,6 +206,7 @@ SOFTWARE
     create() {
       super.create()
       this.startFade = false
+      this.seenThankYou = false
       this.startFadeIn(600, false)
       this.initialFadeTimer = 600
       this.createBackground()
@@ -214,6 +215,7 @@ SOFTWARE
       this.createTitle()
       this.createCredits()
       this.createFin()
+      this.createThankYou()
       this.startBackgroundMusic()
     }
     startBackgroundMusic() {
@@ -332,6 +334,11 @@ SOFTWARE
       this.finText.alpha = 0
       this.addChild(this.finText)
     }
+    createThankYou() {
+      this.thankYou = new Sprite(ImageManager.loadPicture("ThankYouV3"))
+      this.thankYou.visible = false
+      this.addChild(this.thankYou)
+    }
     update() {
       super.update()
       this.updateCreditScreen()
@@ -362,18 +369,39 @@ SOFTWARE
       }
     }
     updateButtonPress() {
-      if (
-        this.finText.alpha > 0.9 &&
-        (Input.isTriggered("ok") ||
-          Input.isTriggered("cancel") ||
-          TouchInput.isTriggered()) &&
-        !this.startFade
-      ) {
+      let triggerInput =
+        Input.isTriggered("ok") ||
+        Input.isTriggered("cancel") ||
+        TouchInput.isTriggered()
+      if (this.finText.alpha > 0.9 && triggerInput && !this.startFade) {
         this.startFade = true
         this.startFadeOut(120, false)
       }
-      if (this._fadeDuration <= 0 && this.startFade) {
+      if (
+        this._fadeDuration <= 0 &&
+        this.startFade &&
+        this.seenThankYou &&
+        triggerInput
+      ) {
+        this.fadeOutAll()
         this.popScene()
+      } else if (
+        this._fadeDuration >= 1 &&
+        this._fadeDuration <= 30 &&
+        this.startFade &&
+        this.startThankYouFade
+      ) {
+        this.thankYou.visible = true
+      } else if (
+        this._fadeDuration <= 0 &&
+        this.startFade &&
+        this.startThankYouFade
+      ) {
+        this.seenThankYou = true
+      } else if (this._fadeDuration <= 0 && this.startFade) {
+        this.startFadeIn(120, true)
+        this.startThankYouFade = true
+        this.thankYou.visible = true
       }
     }
     centerX() {

@@ -2,7 +2,7 @@
  *
  *  KTitle.js
  * 
- *  Build Date: 7/18/2021
+ *  Build Date: 7/19/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -73,39 +73,9 @@ SOFTWARE
 
   Lambda.__name__ = true
   Math.__name__ = true
-  class Std {
-    static string(s) {
-      return js_Boot.__string_rec(s, "");
-    }
-  }
-
-  Std.__name__ = true
   function core_MathExt_lerp(start, end, amount) {
     return start + (end - start) * amount;
   }
-  class haxe_Log {
-    static formatOutput(v, infos) {
-      let str = Std.string(v)
-      if (infos == null) {
-        return str;
-      }
-      let pstr = infos.fileName + ":" + infos.lineNumber
-      if (infos.customParams != null) {
-        let _g = 0
-        let _g1 = infos.customParams
-        while (_g < _g1.length) str += ", " + Std.string(_g1[_g++]);
-      }
-      return pstr + ": " + str;
-    }
-    static trace(v, infos) {
-      let str = haxe_Log.formatOutput(v, infos)
-      if (typeof console != "undefined" && console.log != null) {
-        console.log(str)
-      }
-    }
-  }
-
-  haxe_Log.__name__ = true
   class haxe_ds_StringMap {
     constructor() {
       this.h = Object.create(null)
@@ -490,13 +460,6 @@ SOFTWARE
       let starCount = Math.floor(this.windowWidth / 20)
       let starRows = Math.floor(this.windowHeight / 20)
       let starSpacing = 20
-      haxe_Log.trace(starCount, {
-        fileName: "src/kmessage/KMsgBox.hx",
-        lineNumber: 252,
-        className: "kmessage.KMsgBox",
-        methodName: "drawTilingBackground",
-        customParams: [starRows],
-      })
       let _g = 1
       let _g1 = starCount
       while (_g < _g1) {
@@ -590,13 +553,6 @@ SOFTWARE
       }
       let temp = _g
       let result = temp[Math.floor(temp.length * Math.random())]
-      haxe_Log.trace(result, {
-        fileName: "src/kmessage/KMsgBox.hx",
-        lineNumber: 336,
-        className: "kmessage.KMsgBox",
-        methodName: "sendVowelSound",
-        customParams: [temp],
-      })
       switch (result) {
         case "A":
           let vowel = KMsgBox.VOCAL_DIC.h[this.character].A

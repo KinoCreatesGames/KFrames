@@ -249,7 +249,6 @@ class KMsgBox extends Graphics {
     var starCount = Math.floor(this.windowWidth / (STAR_RADIUS * 2));
     var starRows = Math.floor(this.windowHeight / (STAR_RADIUS * 2));
     var starSpacing = STAR_RADIUS * 2;
-    trace(starCount, starRows);
     for (i in 1...starCount) {
       for (y in 0...starRows) {
         starGraphic.drawStar(i * starSpacing, y * starSpacing, 5, STAR_RADIUS,
@@ -333,7 +332,6 @@ class KMsgBox extends Graphics {
     var temp = [A, E, I, O, U].filter((el) -> el != previousVowel);
     var result = temp[Math.floor(temp.length * Math.random())];
 
-    trace(result, temp);
     switch (result) {
       case A:
         var vowel = VOCAL_DIC.get(this.character).A;

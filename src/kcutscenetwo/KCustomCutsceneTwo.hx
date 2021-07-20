@@ -313,6 +313,7 @@ class KCustomCutsceneTwo extends Scene_Base {
         msgBox.hide();
         // Play Mother Theme
         yula.playAnimation('walk', false);
+        yula.translateTo(yula.x - 100, cast yula.y, 0.025);
         this.startFadeOut(180, false);
         this.startPartThree = true;
       },
@@ -326,6 +327,8 @@ class KCustomCutsceneTwo extends Scene_Base {
         this.starBackground.visible = true;
         this.sceneBackgroundThreeRail.visible = true;
         this.spaceMom.visible = true;
+        yula.x = 528;
+        yula.y = 276;
         yula.playAnimation('idle', true);
       },
       waitTime: 30

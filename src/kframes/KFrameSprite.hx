@@ -149,9 +149,10 @@ class KFrameSprite extends rm.core.Sprite {
     return this;
   }
 
-  public function translateTo(x:Float, y:Int) {
+  public function translateTo(x:Float, y:Int, translationAmount:Float) {
     this.destinationX = x;
     this.destinationY = y;
+    this.translationAmount = translationAmount;
     return this;
   }
 

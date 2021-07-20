@@ -112,6 +112,7 @@ class KCustomCutsceneTwo extends Scene_Base {
 
     rail.addLoadListener((railing) -> {
       this.sceneBackgroundThreeRail.bitmap = railing;
+      this.sceneBackgroundThreeRail.visible = false;
       untyped this.scaleSprite(this.sceneBackgroundThreeRail);
     });
   }
@@ -159,11 +160,12 @@ class KCustomCutsceneTwo extends Scene_Base {
   public function adjustChildren() {
     this.addChild(this.starBackground);
     this.addChild(this.sceneBackgroundThree);
-    this.addChild(this.sceneBackgroundThreeRail);
     this.addChild(this.sceneBackgroundTwo);
     this.addChild(this.sceneBackground);
     this.addChild(this.yula);
     this.addChild(this.spaceMom);
+    this.addChild(this.amulet);
+    this.addChild(this.sceneBackgroundThreeRail);
     this.addChild(this.msgBox);
   }
 
@@ -310,6 +312,7 @@ class KCustomCutsceneTwo extends Scene_Base {
       fn: () -> {
         msgBox.hide();
         // Play Mother Theme
+        yula.playAnimation('walk', false);
         this.startFadeOut(180, false);
         this.startPartThree = true;
       },
@@ -321,7 +324,9 @@ class KCustomCutsceneTwo extends Scene_Base {
         // Prepare Scene Three
         this.sceneBackgroundThree.visible = true;
         this.starBackground.visible = true;
+        this.sceneBackgroundThreeRail.visible = true;
         this.spaceMom.visible = true;
+        yula.playAnimation('idle', true);
       },
       waitTime: 30
     });

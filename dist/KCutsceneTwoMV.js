@@ -2,7 +2,7 @@
  *
  *  KCutsceneTwoMV.js
  * 
- *  Build Date: 7/19/2021
+ *  Build Date: 7/20/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -260,6 +260,7 @@ SOFTWARE
       })
       rail.addLoadListener(function (railing) {
         _gthis.sceneBackgroundThreeRail.bitmap = railing
+        _gthis.sceneBackgroundThreeRail.visible = false
         _gthis.scaleSprite(_gthis.sceneBackgroundThreeRail)
       })
     }
@@ -282,6 +283,15 @@ SOFTWARE
       this.spaceMom.scale.y = 2
       this.spaceMom.scale.x = 2
       this.spaceMom.visible = false
+      this.amulet = KCFrames.createSprite("Falling-Amulet_102x256")
+      this.amulet.addAnimation(
+        "falling",
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+      )
+      this.amulet.setFPS(10)
+      this.amulet.x = this.yula.x - 60
+      this.amulet.y = this.spaceMom.y
+      this.amulet.visible = false
     }
     createMessageBox() {
       this.msgBox = KMessage.createMessageBox(0, 0, 200, 150)
@@ -292,11 +302,12 @@ SOFTWARE
     adjustChildren() {
       this.addChild(this.starBackground)
       this.addChild(this.sceneBackgroundThree)
-      this.addChild(this.sceneBackgroundThreeRail)
       this.addChild(this.sceneBackgroundTwo)
       this.addChild(this.sceneBackground)
       this.addChild(this.yula)
       this.addChild(this.spaceMom)
+      this.addChild(this.amulet)
+      this.addChild(this.sceneBackgroundThreeRail)
       this.addChild(this.msgBox)
     }
     update() {
@@ -413,6 +424,7 @@ SOFTWARE
       this.commandStepList.push({
         fn: function () {
           _gthis.msgBox.hide()
+          _gthis.yula.playAnimation("walk", false)
           _gthis.startFadeOut(180, false)
           _gthis.startPartThree = true
         },
@@ -423,7 +435,9 @@ SOFTWARE
           _gthis.sceneBackgroundTwo.visible = false
           _gthis.sceneBackgroundThree.visible = true
           _gthis.starBackground.visible = true
+          _gthis.sceneBackgroundThreeRail.visible = true
           _gthis.spaceMom.visible = true
+          _gthis.yula.playAnimation("idle", true)
         },
         waitTime: 30,
       })
@@ -505,6 +519,9 @@ SOFTWARE
           _gthis.msgBox.show()
           _gthis.msgBox.sendMsgC("spaceMom", "There isn't much time left...")
           _gthis.momFade = true
+          _gthis.startAmuletFall = true
+          _gthis.amulet.visible = true
+          _gthis.amulet.playAnimation("falling", false)
         },
         waitTime: 180,
       })
@@ -543,6 +560,7 @@ SOFTWARE
             _gthis.yula.y - padding - _gthis.msgBox.height
           )
           _gthis.msgBox.show()
+          _gthis.amulet.visible = false
           _gthis.msgBox.sendMsgC("yula", "A pendant?")
         },
         waitTime: 180,

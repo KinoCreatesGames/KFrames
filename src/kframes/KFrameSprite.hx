@@ -8,6 +8,9 @@ class KFrameSprite extends rm.core.Sprite {
   public var frameHeight:Int;
   public var frameIndex:Int;
   public var animations:Map<String, Array<Int>>;
+  public var destinationX:Float;
+  public var destinationY:Float;
+  public var translationAmount:Float;
 
   /**
    * Adjusts the speed at which to animate
@@ -60,7 +63,23 @@ class KFrameSprite extends rm.core.Sprite {
 
   override public function update() {
     super.update();
+    updateTranslation();
     updateAnimationFrames();
+  }
+
+  public function updateTranslation() {
+    if (this.destinationX != null || this.destinationY != null) {
+      if (this.destinationX != this.x || this.destinationY != this.y) {
+        this.x = lerp(this.x, this.destinationX, this.translationAmount);
+        this.y = lerp(this.y, this.destinationY, this.translationAmount);
+      }
+    }
+    // Do nothing otherwise
+  }
+
+  public function stopTranslation() {
+    this.destinationX = null;
+    this.destinationY = null;
   }
 
   public function updateAnimationFrames() {
@@ -119,7 +138,7 @@ class KFrameSprite extends rm.core.Sprite {
   public function playAnimation(animationName:String, loop:Bool) {
     currentAnimName = animationName;
     isPlaying = true;
-    looping = true;
+    looping = loop;
     return this;
   }
 
@@ -127,6 +146,12 @@ class KFrameSprite extends rm.core.Sprite {
     this.frameSpeed = fps;
     this.frameAmount = Math.ceil(60 / this.frameSpeed);
     this.frameWait = this.frameAmount;
+    return this;
+  }
+
+  public function translateTo(x:Float, y:Int) {
+    this.destinationX = x;
+    this.destinationY = y;
     return this;
   }
 

@@ -417,6 +417,7 @@ class KCustomCutsceneTwo extends Scene_Base {
         this.momFade = true;
         this.startAmuletFall = true;
         // play falling animation
+        this.amulet.visible = true;
         this.amulet.playAnimation('falling', false);
       },
       waitTime: defaultWait
@@ -466,8 +467,10 @@ class KCustomCutsceneTwo extends Scene_Base {
         var y = (yula.y - padding) - this.msgBox.height;
         msgBox.move(x, y);
         msgBox.show();
+        this.amulet.visible = false;
         var text = "A pendant?";
         msgBox.sendMsgC('yula', text);
+        // Hide amulet after the pendant is picked up
       },
       waitTime: defaultWait
     });

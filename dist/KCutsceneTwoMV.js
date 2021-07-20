@@ -72,6 +72,9 @@ SOFTWARE
 
   Lambda.__name__ = true
   Math.__name__ = true
+  function core_Amaryllis_lerp(start, end, amount) {
+    return start + (end - start) * amount;
+  }
   class haxe_ds_StringMap {
     constructor() {
       this.h = Object.create(null)
@@ -424,7 +427,8 @@ SOFTWARE
       this.commandStepList.push({
         fn: function () {
           _gthis.msgBox.hide()
-          _gthis.yula.playAnimation("walk", false)
+          _gthis.yula.playAnimation("walk", true)
+          _gthis.yula.translateTo(_gthis.yula.x - 100, _gthis.yula.y, 0.025)
           _gthis.startFadeOut(180, false)
           _gthis.startPartThree = true
         },
@@ -437,6 +441,9 @@ SOFTWARE
           _gthis.starBackground.visible = true
           _gthis.sceneBackgroundThreeRail.visible = true
           _gthis.spaceMom.visible = true
+          _gthis.yula.stopTranslation()
+          _gthis.yula.x = 528
+          _gthis.yula.y = 276
           _gthis.yula.playAnimation("idle", true)
         },
         waitTime: 30,
@@ -661,7 +668,28 @@ SOFTWARE
     }
     update() {
       super.update()
+      this.updateTranslation()
       this.updateAnimationFrames()
+    }
+    updateTranslation() {
+      if (this.destinationX != null || this.destinationY != null) {
+        if (this.destinationX != this.x || this.destinationY != this.y) {
+          this.x = core_Amaryllis_lerp(
+            this.x,
+            this.destinationX,
+            this.translationAmount
+          )
+          this.y = core_Amaryllis_lerp(
+            this.y,
+            this.destinationY,
+            this.translationAmount
+          )
+        }
+      }
+    }
+    stopTranslation() {
+      this.destinationX = null
+      this.destinationY = null
     }
     updateAnimationFrames() {
       if (this.isPlaying) {
@@ -724,13 +752,19 @@ SOFTWARE
     playAnimation(animationName, loop) {
       this.currentAnimName = animationName
       this.isPlaying = true
-      this.looping = true
+      this.looping = loop
       return this;
     }
     setFPS(fps) {
       this.frameSpeed = fps
       this.frameAmount = Math.ceil(60 / this.frameSpeed)
       this.frameWait = this.frameAmount
+      return this;
+    }
+    translateTo(x, y, translationAmount) {
+      this.destinationX = x
+      this.destinationY = y
+      this.translationAmount = translationAmount
       return this;
     }
     stop() {

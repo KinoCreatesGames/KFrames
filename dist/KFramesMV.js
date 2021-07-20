@@ -65,6 +65,9 @@ SOFTWARE
 
   EReg.__name__ = true
   Math.__name__ = true
+  function core_Amaryllis_lerp(start, end, amount) {
+    return start + (end - start) * amount;
+  }
   class haxe_ds_StringMap {
     constructor() {
       this.h = Object.create(null)
@@ -223,7 +226,28 @@ SOFTWARE
     }
     update() {
       super.update()
+      this.updateTranslation()
       this.updateAnimationFrames()
+    }
+    updateTranslation() {
+      if (this.destinationX != null || this.destinationY != null) {
+        if (this.destinationX != this.x || this.destinationY != this.y) {
+          this.x = core_Amaryllis_lerp(
+            this.x,
+            this.destinationX,
+            this.translationAmount
+          )
+          this.y = core_Amaryllis_lerp(
+            this.y,
+            this.destinationY,
+            this.translationAmount
+          )
+        }
+      }
+    }
+    stopTranslation() {
+      this.destinationX = null
+      this.destinationY = null
     }
     updateAnimationFrames() {
       if (this.isPlaying) {
@@ -286,13 +310,19 @@ SOFTWARE
     playAnimation(animationName, loop) {
       this.currentAnimName = animationName
       this.isPlaying = true
-      this.looping = true
+      this.looping = loop
       return this;
     }
     setFPS(fps) {
       this.frameSpeed = fps
       this.frameAmount = Math.ceil(60 / this.frameSpeed)
       this.frameWait = this.frameAmount
+      return this;
+    }
+    translateTo(x, y, translationAmount) {
+      this.destinationX = x
+      this.destinationY = y
+      this.translationAmount = translationAmount
       return this;
     }
     stop() {

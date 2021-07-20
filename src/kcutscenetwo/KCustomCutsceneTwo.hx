@@ -33,6 +33,7 @@ class KCustomCutsceneTwo extends Scene_Base {
   public var starBackground:Sprite;
   public var yula:KFrameSprite;
   public var spaceMom:KFrameSprite;
+  public var amulet:KFrameSprite;
   public var msgBox:KMsgBox;
   // Interpreter Information
   public var commandStepList:Array<FnStep>;
@@ -125,6 +126,7 @@ class KCustomCutsceneTwo extends Scene_Base {
     yula.scale.y = 2;
     yula.scale.x = -2;
 
+    // Space Mom
     spaceMom = KFrame.createSprite('Mom_150x150', 150, 150);
     spaceMom.addAnimation('float', [0, 1, 2, 3, 4, 5, 6, 7]);
     spaceMom.playAnimation('float', true);
@@ -134,6 +136,16 @@ class KCustomCutsceneTwo extends Scene_Base {
     spaceMom.scale.y = 2;
     spaceMom.scale.x = 2;
     spaceMom.visible = false;
+
+    // Amulet
+    amulet = KFrame.createSprite('Falling-Amulet_102x256');
+    // 15 Frame animation
+    amulet.addAnimation('falling',
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+    amulet.setFPS(10);
+    amulet.x = yula.x - 60;
+    amulet.y = spaceMom.y;
+    amulet.visible = false;
   }
 
   public function createMessageBox() {
@@ -407,7 +419,7 @@ class KCustomCutsceneTwo extends Scene_Base {
     });
 
     // Mom Disappears
-
+    // Sprite falls to the ground for the pendant
     // =====
     this.commandStepList.push({
       fn: () -> {

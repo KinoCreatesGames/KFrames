@@ -62,9 +62,11 @@ SOFTWARE
     }
     addCommand(command) {
       this.commands.push(command)
+      return this;
     }
     removeCommand(index) {
       this.commands.splice(index, 1)
+      return this;
     }
     update() {
       let playerCommands =
@@ -73,11 +75,6 @@ SOFTWARE
         TouchInput.isPressed()
       if (this.waitTime <= 0 && !this.playerInput) {
         this.advanceCommand()
-        if (this.currentCommand != null) {
-          this.currentCommand.fn()
-          this.waitTime = this.currentCommand.wait
-          this.playerInput = this.currentCommand.playerInput
-        }
       }
       if (this.playerInput && playerCommands) {
         this.advanceCommand()
@@ -85,6 +82,11 @@ SOFTWARE
     }
     advanceCommand() {
       this.currentCommand = this.commands.shift()
+      if (this.currentCommand != null) {
+        this.currentCommand.fn()
+        this.waitTime = this.currentCommand.wait
+        this.playerInput = this.currentCommand.playerInput
+      }
     }
   }
 

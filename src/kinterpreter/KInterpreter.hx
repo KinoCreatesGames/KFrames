@@ -29,10 +29,12 @@ class KInterpreter {
    */
   public function addCommand(command:Step) {
     this.commands.push(command);
+    return this;
   }
 
   public function removeCommand(index:Int) {
     this.commands.splice(index, 1);
+    return this;
   }
 
   public function update() {

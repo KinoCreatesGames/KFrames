@@ -48,6 +48,10 @@ ktitle.hxml
 --next
 kcutscenetwo.hxml
 
+--next
+kinterpreter.hxml
+
+
 --cmd 'npx napkin'
 --cmd haxe -D gamePath=../games/stargazers/game --run CleanJs
 

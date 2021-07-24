@@ -40,12 +40,8 @@ class KInterpreter {
       || Input.isTriggered('cancel') || TouchInput.isPressed());
     if (this.waitTime <= 0 && !this.playerInput) {
       this.advanceCommand();
-      if (this.currentCommand != null) {
-        this.currentCommand.fn();
-        this.waitTime = this.currentCommand.wait;
-        this.playerInput = this.currentCommand.playerInput;
-      }
     }
+
     // Automatically advance when given player input
     if (this.playerInput && playerCommands) {
       this.advanceCommand();
@@ -54,5 +50,10 @@ class KInterpreter {
 
   public function advanceCommand() {
     this.currentCommand = this.commands.shift();
+    if (this.currentCommand != null) {
+      this.currentCommand.fn();
+      this.waitTime = this.currentCommand.wait;
+      this.playerInput = this.currentCommand.playerInput;
+    }
   }
 }

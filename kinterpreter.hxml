@@ -21,11 +21,11 @@
 
 --each
 --next
--js dist/KFrames.js
+-js dist/KInterpreter.js
 
 --next
 -D compileMV
--js dist/KFramesMV.js
+-js dist/KInterpreterMV.js
 
 
 

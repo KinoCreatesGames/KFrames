@@ -1,10 +1,13 @@
 package kinterpreter;
 
+import utils.Fn;
 import rm.Globals;
 import core.Amaryllis.createEventEmitter;
 import pixi.interaction.EventEmitter;
 
-typedef KParams = {};
+typedef KParams = {
+  var waitTime:Int;
+};
 
 @:native('KCustomIntepreter')
 @:expose('KCustomInterpreter')
@@ -16,6 +19,10 @@ class Main {
     var plugin = Globals.Plugins.filter((plugin) ->
       ~/<KInterpreter>/ig.match(plugin.description))[0];
     var params = plugin.parameters;
+
+    Params = {
+      waitTime: Fn.parseIntJs(params['Wait Time'])
+    }
   }
 
   /**

@@ -3,10 +3,12 @@ package kinterpreter;
 import rm.core.TouchInput;
 import rm.core.Input;
 
+using core.MathExt;
+
 typedef Step = {
   fn:Void -> Void,
-  wait:Int,
-  playerInput:Bool
+  ?wait:Int,
+  ?playerInput:Bool
 }
 
 @:native('KInterpreter')
@@ -19,6 +21,15 @@ class KInterpreter {
 
   public function new(commands:Array<Step>) {
     this.commands = commands;
+    // Modify commands if necessary
+    for (command in this.commands) {
+      if (command.wait == null) {
+        command.wait = Main.Params.waitTime;
+      }
+      if (command.playerInput == null) {
+        command.playerInput = false;
+      }
+    }
     this.waitTime = 0;
     this.playerInput = false;
   }
@@ -28,6 +39,12 @@ class KInterpreter {
    * @param command 
    */
   public function addCommand(command:Step) {
+    if (command.wait == null) {
+      command.wait = Main.Params.waitTime;
+    }
+    if (command.playerInput == null) {
+      command.playerInput = false;
+    }
     this.commands.push(command);
     return this;
   }
@@ -48,6 +65,9 @@ class KInterpreter {
     if (this.playerInput && playerCommands) {
       this.advanceCommand();
     }
+
+    // Decrement Wait time
+    this.waitTime = (this.waitTime - 1).clamp(0, 9000000);
   }
 
   public function advanceCommand() {

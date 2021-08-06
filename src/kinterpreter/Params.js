@@ -4,6 +4,10 @@
 
 @target MV MZ
 
+@param Wait Time
+@desc Default wait time within the engine in frames for interpreter
+@default 300
+
 @help
 ==== How To Use ====
 

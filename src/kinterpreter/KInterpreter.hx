@@ -1,14 +1,18 @@
 package kinterpreter;
 
+import pixi.core.ticker.Ticker;
 import rm.core.TouchInput;
 import rm.core.Input;
 
 using core.MathExt;
 
 typedef Step = {
-  fn:Void -> Void,
+  fn:Void -> Bool,
   ?wait:Int,
-  ?playerInput:Bool
+  ?playerInput:Bool,
+  ?isAnimation:Bool,
+  ?animationTime: Int,
+  ?manualUpdate: Bool
 }
 
 @:native('KInterpreter')
@@ -18,8 +22,9 @@ class KInterpreter {
   public var commands:Array<Step>;
   public var waitTime:Int;
   public var playerInput:Bool;
-  puclic var isAnimationRunning: Bool;
-  public var animationTime: Int;
+  public var isAnimationRunning:Bool;
+  public var animationTime:Int;
+  public var ticker:Ticker;
 
   public function new(commands:Array<Step>) {
     this.commands = commands;
@@ -35,6 +40,7 @@ class KInterpreter {
         command.isAnimation = false;
       }
     }
+    this.ticker = new Ticker();
     this.isAnimationRunning = false;
     this.animationTime = 0;
     this.waitTime = 0;
@@ -55,6 +61,9 @@ class KInterpreter {
     if (command.isAnimation == null) {
       command.isAnimation = false;
     }
+    if (command.manualUpdate == null) {
+      command.manualUpdate = false;
+    }
     this.commands.push(command);
     return this;
   }
@@ -71,7 +80,7 @@ class KInterpreter {
       this.advanceCommand();
     }
     if (this.isAnimationRunning) {
-      return
+      return;
     }
     // Automatically advance when given player input
     if (this.playerInput && playerCommands) {
@@ -86,23 +95,25 @@ class KInterpreter {
     this.currentCommand = this.commands.shift();
     if (this.currentCommand != null) {
       if (this.currentCommand.isAnimation) {
-        this.isAnimationRunning = true
-        this.ticker.start()
-        this.ticker.add((time) => {
-          if (this.animationTime <= 0) {
-            this.ticker.stop()
-            this.isAnimationRunning = false
+        this.isAnimationRunning = true;
+        this.ticker.start();
+        this.ticker.add(() -> {
+          if (this.currentCommand.animationTime <= 0 && !this.currentCommand.manualUpdate) {
+            this.ticker.stop();
+            this.isAnimationRunning = false;
           }
-          this.currentCommand.fn()
-          this.animationTime--
-        })
+          if(this.currentCommand.manualUpdate && cast this.currentCommand.fn()) {
+            this.ticker.stop();
+            this.isAnimationRunning = false;
+          }
+          this.currentCommand.fn();
+          this.currentCommand.animationTime--;
+        });
       } else {
-        this.currentCommand.fn()
+        this.currentCommand.fn();
       }
       this.waitTime = this.currentCommand.wait;
       this.playerInput = this.currentCommand.playerInput;
-      this.isAnimation = this.currentCommand.isAnimation;
-      this.animationTime = this.currentCommand.animationTime;
     }
   }
 }

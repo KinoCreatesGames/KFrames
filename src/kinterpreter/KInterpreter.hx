@@ -18,6 +18,8 @@ class KInterpreter {
   public var commands:Array<Step>;
   public var waitTime:Int;
   public var playerInput:Bool;
+  puclic var isAnimationRunning: Bool;
+  public var animationTime: Int;
 
   public function new(commands:Array<Step>) {
     this.commands = commands;
@@ -29,7 +31,12 @@ class KInterpreter {
       if (command.playerInput == null) {
         command.playerInput = false;
       }
+      if (command.isAnimation == null) {
+        command.isAnimation = false;
+      }
     }
+    this.isAnimationRunning = false;
+    this.animationTime = 0;
     this.waitTime = 0;
     this.playerInput = false;
   }
@@ -44,6 +51,9 @@ class KInterpreter {
     }
     if (command.playerInput == null) {
       command.playerInput = false;
+    }
+    if (command.isAnimation == null) {
+      command.isAnimation = false;
     }
     this.commands.push(command);
     return this;
@@ -60,7 +70,9 @@ class KInterpreter {
     if (this.waitTime <= 0 && !this.playerInput) {
       this.advanceCommand();
     }
-
+    if (this.isAnimationRunning) {
+      return
+    }
     // Automatically advance when given player input
     if (this.playerInput && playerCommands) {
       this.advanceCommand();
@@ -73,9 +85,24 @@ class KInterpreter {
   public function advanceCommand() {
     this.currentCommand = this.commands.shift();
     if (this.currentCommand != null) {
-      this.currentCommand.fn();
+      if (this.currentCommand.isAnimation) {
+        this.isAnimationRunning = true
+        this.ticker.start()
+        this.ticker.add((time) => {
+          if (this.animationTime <= 0) {
+            this.ticker.stop()
+            this.isAnimationRunning = false
+          }
+          this.currentCommand.fn()
+          this.animationTime--
+        })
+      } else {
+        this.currentCommand.fn()
+      }
       this.waitTime = this.currentCommand.wait;
       this.playerInput = this.currentCommand.playerInput;
+      this.isAnimation = this.currentCommand.isAnimation;
+      this.animationTime = this.currentCommand.animationTime;
     }
   }
 }

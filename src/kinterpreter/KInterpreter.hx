@@ -56,7 +56,7 @@ class KInterpreter {
 
   public function update() {
     var playerCommands = (Input.isTriggered('ok')
-      || Input.isTriggered('cancel') || TouchInput.isPressed());
+      || Input.isTriggered('cancel') || TouchInput.isTriggered());
     if (this.waitTime <= 0 && !this.playerInput) {
       this.advanceCommand();
     }

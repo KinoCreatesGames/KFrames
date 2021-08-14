@@ -2,7 +2,7 @@
  *
  *  KInterpreterMV.js
  * 
- *  Build Date: 7/23/2021
+ *  Build Date: 8/14/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -14,6 +14,10 @@
 @plugindesc >  Creates an interpreter for creating cutscenes simply <KInterpreter>.
 
 @target MV MZ
+
+@param Wait Time
+@desc Default wait time within the engine in frames for interpreter
+@default 300
 
 @help
 ==== How To Use ====
@@ -57,10 +61,28 @@ SOFTWARE
   class KInterpreter {
     constructor(commands) {
       this.commands = commands
+      let _g = 0
+      let _g1 = this.commands
+      while (_g < _g1.length) {
+        let command = _g1[_g]
+        ++_g
+        if (command.wait == null) {
+          command.wait = KCustomIntepreter.Params.waitTime
+        }
+        if (command.playerInput == null) {
+          command.playerInput = false
+        }
+      }
       this.waitTime = 0
       this.playerInput = false
     }
     addCommand(command) {
+      if (command.wait == null) {
+        command.wait = KCustomIntepreter.Params.waitTime
+      }
+      if (command.playerInput == null) {
+        command.playerInput = false
+      }
       this.commands.push(command)
       return this;
     }
@@ -72,13 +94,16 @@ SOFTWARE
       let playerCommands =
         Input.isTriggered("ok") ||
         Input.isTriggered("cancel") ||
-        TouchInput.isPressed()
+        TouchInput.isTriggered()
       if (this.waitTime <= 0 && !this.playerInput) {
         this.advanceCommand()
       }
       if (this.playerInput && playerCommands) {
         this.advanceCommand()
       }
+      this.waitTime = Math.round(
+        Math.min(Math.max(this.waitTime - 1, 0), 9000000)
+      )
     }
     advanceCommand() {
       this.currentCommand = this.commands.shift()
@@ -102,6 +127,10 @@ SOFTWARE
         if (new EReg("<KInterpreter>", "ig").match(v.description)) {
           _g.push(v)
         }
+      }
+      let params = _g[0].parameters
+      KCustomIntepreter.Params = {
+        waitTime: parseInt(params["Wait Time"], 10),
       }
     }
     static createInterpreter() {

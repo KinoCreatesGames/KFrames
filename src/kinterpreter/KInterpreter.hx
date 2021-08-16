@@ -10,9 +10,9 @@ typedef Step = {
   fn:Void -> Bool,
   ?wait:Int,
   ?playerInput:Bool,
-  ?isAnimation:Bool,
-  ?animationTime: Int,
-  ?manualUpdate: Bool
+  ?manualUpdate:Bool,
+  ?updateTime:Int,
+  ?stop:Bool
 }
 
 @:native('KInterpreter')
@@ -22,8 +22,8 @@ class KInterpreter {
   public var commands:Array<Step>;
   public var waitTime:Int;
   public var playerInput:Bool;
-  public var isAnimationRunning:Bool;
-  public var animationTime:Int;
+  public var isCommandUpdating:Bool;
+  public var updateTime:Int;
   public var ticker:Ticker;
 
   public function new(commands:Array<Step>) {
@@ -36,13 +36,13 @@ class KInterpreter {
       if (command.playerInput == null) {
         command.playerInput = false;
       }
-      if (command.isAnimation == null) {
-        command.isAnimation = false;
+      if (command.manualUpdate == null) {
+        command.manualUpdate = false;
       }
     }
     this.ticker = new Ticker();
-    this.isAnimationRunning = false;
-    this.animationTime = 0;
+    this.isCommandUpdating = false;
+    this.updateTime = 0;
     this.waitTime = 0;
     this.playerInput = false;
   }
@@ -57,9 +57,6 @@ class KInterpreter {
     }
     if (command.playerInput == null) {
       command.playerInput = false;
-    }
-    if (command.isAnimation == null) {
-      command.isAnimation = false;
     }
     if (command.manualUpdate == null) {
       command.manualUpdate = false;
@@ -79,9 +76,6 @@ class KInterpreter {
     if (this.waitTime <= 0 && !this.playerInput) {
       this.advanceCommand();
     }
-    if (this.isAnimationRunning) {
-      return;
-    }
     // Automatically advance when given player input
     if (this.playerInput && playerCommands) {
       this.advanceCommand();
@@ -94,20 +88,19 @@ class KInterpreter {
   public function advanceCommand() {
     this.currentCommand = this.commands.shift();
     if (this.currentCommand != null) {
-      if (this.currentCommand.isAnimation) {
-        this.isAnimationRunning = true;
+      if (this.currentCommand.manualUpdate) {
+        this.isCommandUpdating = true;
         this.ticker.start();
         this.ticker.add(() -> {
-          if (this.currentCommand.animationTime <= 0 && !this.currentCommand.manualUpdate) {
+          if (this.currentCommand.updateTime <= 0 || this.currentCommand.stop) {
             this.ticker.stop();
-            this.isAnimationRunning = false;
-          }
-          if(this.currentCommand.manualUpdate && cast this.currentCommand.fn()) {
-            this.ticker.stop();
-            this.isAnimationRunning = false;
+            this.isCommandUpdating = false;
+            this.advanceCommand();
           }
           this.currentCommand.fn();
-          this.currentCommand.animationTime--;
+          if (this.currentCommand.updateTime > 0) {
+            this.currentCommand.updateTime--;
+          }
         });
       } else {
         this.currentCommand.fn();

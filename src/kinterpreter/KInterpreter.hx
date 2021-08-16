@@ -7,7 +7,7 @@ import rm.core.Input;
 using core.MathExt;
 
 typedef Step = {
-  fn:Void -> Bool,
+  fn:Void -> Void,
   ?wait:Int,
   ?playerInput:Bool,
   ?manualUpdate:Bool,

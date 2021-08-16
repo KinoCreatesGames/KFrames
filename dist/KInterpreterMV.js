@@ -2,7 +2,7 @@
  *
  *  KInterpreterMV.js
  * 
- *  Build Date: 8/14/2021
+ *  Build Date: 8/16/2021
  * 
  *  Made with LunaTea -- Haxe
  *
@@ -43,107 +43,137 @@ SOFTWARE
 */
 
 (function ($hx_exports, $global) {
-  "use strict"
+  "use strict";
   class EReg {
     constructor(r, opt) {
-      this.r = new RegExp(r, opt.split("u").join(""))
+      this.r = new RegExp(r, opt.split("u").join(""));
     }
     match(s) {
       if (this.r.global) {
-        this.r.lastIndex = 0
+        this.r.lastIndex = 0;
       }
-      this.r.m = this.r.exec(s)
-      this.r.s = s
+      this.r.m = this.r.exec(s);
+      this.r.s = s;
       return this.r.m != null;
     }
   }
 
   class KInterpreter {
     constructor(commands) {
-      this.commands = commands
-      let _g = 0
-      let _g1 = this.commands
+      this.commands = commands;
+      let _g = 0;
+      let _g1 = this.commands;
       while (_g < _g1.length) {
-        let command = _g1[_g]
-        ++_g
+        let command = _g1[_g];
+        ++_g;
         if (command.wait == null) {
-          command.wait = KCustomIntepreter.Params.waitTime
+          command.wait = KCustomIntepreter.Params.waitTime;
         }
         if (command.playerInput == null) {
-          command.playerInput = false
+          command.playerInput = false;
+        }
+        if (command.manualUpdate == null) {
+          command.manualUpdate = false;
         }
       }
-      this.waitTime = 0
-      this.playerInput = false
+      this.ticker = new PIXI.Ticker();
+      this.isCommandUpdating = false;
+      this.updateTime = 0;
+      this.waitTime = 0;
+      this.playerInput = false;
     }
     addCommand(command) {
       if (command.wait == null) {
-        command.wait = KCustomIntepreter.Params.waitTime
+        command.wait = KCustomIntepreter.Params.waitTime;
       }
       if (command.playerInput == null) {
-        command.playerInput = false
+        command.playerInput = false;
       }
-      this.commands.push(command)
+      if (command.manualUpdate == null) {
+        command.manualUpdate = false;
+      }
+      this.commands.push(command);
       return this;
     }
     removeCommand(index) {
-      this.commands.splice(index, 1)
+      this.commands.splice(index, 1);
       return this;
     }
     update() {
       let playerCommands =
         Input.isTriggered("ok") ||
         Input.isTriggered("cancel") ||
-        TouchInput.isTriggered()
+        TouchInput.isTriggered();
       if (this.waitTime <= 0 && !this.playerInput) {
-        this.advanceCommand()
+        this.advanceCommand();
       }
       if (this.playerInput && playerCommands) {
-        this.advanceCommand()
+        this.advanceCommand();
       }
       this.waitTime = Math.round(
         Math.min(Math.max(this.waitTime - 1, 0), 9000000)
-      )
+      );
     }
     advanceCommand() {
-      this.currentCommand = this.commands.shift()
+      this.currentCommand = this.commands.shift();
+      let _gthis = this;
       if (this.currentCommand != null) {
-        this.currentCommand.fn()
-        this.waitTime = this.currentCommand.wait
-        this.playerInput = this.currentCommand.playerInput
+        if (this.currentCommand.manualUpdate) {
+          this.isCommandUpdating = true;
+          this.ticker.start();
+          this.ticker.add(function () {
+            if (
+              _gthis.currentCommand.updateTime <= 0 ||
+              _gthis.currentCommand.stop
+            ) {
+              _gthis.ticker.stop();
+              _gthis.isCommandUpdating = false;
+              _gthis.advanceCommand();
+            }
+            _gthis.currentCommand.fn(_gthis.currentCommand);
+            if (_gthis.currentCommand.updateTime > 0) {
+              let fh = _gthis.currentCommand;
+              fh.updateTime--;
+            }
+          });
+        } else {
+          this.currentCommand.fn(this.currentCommand);
+        }
+        this.waitTime = this.currentCommand.wait;
+        this.playerInput = this.currentCommand.playerInput;
       }
     }
   }
 
-  $hx_exports["KInterpreter"] = KInterpreter
+  $hx_exports["KInterpreter"] = KInterpreter;
   class KCustomIntepreter {
     static main() {
-      let _this = $plugins
-      let _g = []
-      let _g1 = 0
+      let _this = $plugins;
+      let _g = [];
+      let _g1 = 0;
       while (_g1 < _this.length) {
-        let v = _this[_g1]
-        ++_g1
+        let v = _this[_g1];
+        ++_g1;
         if (new EReg("<KInterpreter>", "ig").match(v.description)) {
-          _g.push(v)
+          _g.push(v);
         }
       }
-      let params = _g[0].parameters
+      let params = _g[0].parameters;
       KCustomIntepreter.Params = {
         waitTime: parseInt(params["Wait Time"], 10),
-      }
+      };
     }
     static createInterpreter() {
       return new KInterpreter([]);
     }
   }
 
-  $hx_exports["KCustomInterpreter"] = KCustomIntepreter
+  $hx_exports["KCustomInterpreter"] = KCustomIntepreter;
 
   {
   }
-  KCustomIntepreter.listener = new PIXI.utils.EventEmitter()
-  KCustomIntepreter.main()
+  KCustomIntepreter.listener = new PIXI.utils.EventEmitter();
+  KCustomIntepreter.main();
 })(
   typeof exports != "undefined"
     ? exports
@@ -153,4 +183,4 @@ SOFTWARE
     ? self
     : this,
   {}
-)
+);

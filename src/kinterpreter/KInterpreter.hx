@@ -1,14 +1,23 @@
 package kinterpreter;
 
+import pixi.core.ticker.Ticker;
 import rm.core.TouchInput;
 import rm.core.Input;
 
 using core.MathExt;
 
 typedef Step = {
-  fn:Void -> Void,
-  ?wait:Int,
-  ?playerInput:Bool
+  function fn(step: Step):Void;
+  @:optional
+  var wait:Int;
+  @:optional
+  var playerInput:Bool;
+  @:optional
+  var manualUpdate:Bool;
+  @:optional
+  var updateTime:Int;
+  @:optional
+  var stop:Bool;
 }
 
 @:native('KInterpreter')
@@ -18,6 +27,9 @@ class KInterpreter {
   public var commands:Array<Step>;
   public var waitTime:Int;
   public var playerInput:Bool;
+  public var isCommandUpdating:Bool;
+  public var updateTime:Int;
+  public var ticker:Ticker;
 
   public function new(commands:Array<Step>) {
     this.commands = commands;
@@ -29,7 +41,13 @@ class KInterpreter {
       if (command.playerInput == null) {
         command.playerInput = false;
       }
+      if (command.manualUpdate == null) {
+        command.manualUpdate = false;
+      }
     }
+    this.ticker = new Ticker();
+    this.isCommandUpdating = false;
+    this.updateTime = 0;
     this.waitTime = 0;
     this.playerInput = false;
   }
@@ -44,6 +62,9 @@ class KInterpreter {
     }
     if (command.playerInput == null) {
       command.playerInput = false;
+    }
+    if (command.manualUpdate == null) {
+      command.manualUpdate = false;
     }
     this.commands.push(command);
     return this;
@@ -60,7 +81,6 @@ class KInterpreter {
     if (this.waitTime <= 0 && !this.playerInput) {
       this.advanceCommand();
     }
-
     // Automatically advance when given player input
     if (this.playerInput && playerCommands) {
       this.advanceCommand();
@@ -73,7 +93,23 @@ class KInterpreter {
   public function advanceCommand() {
     this.currentCommand = this.commands.shift();
     if (this.currentCommand != null) {
-      this.currentCommand.fn();
+      if (this.currentCommand.manualUpdate) {
+        this.isCommandUpdating = true;
+        this.ticker.start();
+        this.ticker.add(() -> {
+          if (this.currentCommand.updateTime <= 0 || this.currentCommand.stop) {
+            this.ticker.stop();
+            this.isCommandUpdating = false;
+            this.advanceCommand();
+          }
+          this.currentCommand.fn(this.currentCommand);
+          if (this.currentCommand.updateTime > 0) {
+            this.currentCommand.updateTime--;
+          }
+        });
+      } else {
+        this.currentCommand.fn(this.currentCommand);
+      }
       this.waitTime = this.currentCommand.wait;
       this.playerInput = this.currentCommand.playerInput;
     }

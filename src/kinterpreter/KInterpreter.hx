@@ -7,12 +7,17 @@ import rm.core.Input;
 using core.MathExt;
 
 typedef Step = {
-  fn:Void -> Void,
-  ?wait:Int,
-  ?playerInput:Bool,
-  ?manualUpdate:Bool,
-  ?updateTime:Int,
-  ?stop:Bool
+  function fn(step: Step):Void;
+  @:optional
+  var wait:Int;
+  @:optional
+  var playerInput:Bool;
+  @:optional
+  var manualUpdate:Bool;
+  @:optional
+  var updateTime:Int;
+  @:optional
+  var stop:Bool;
 }
 
 @:native('KInterpreter')
@@ -97,13 +102,13 @@ class KInterpreter {
             this.isCommandUpdating = false;
             this.advanceCommand();
           }
-          this.currentCommand.fn();
+          this.currentCommand.fn(this.currentCommand);
           if (this.currentCommand.updateTime > 0) {
             this.currentCommand.updateTime--;
           }
         });
       } else {
-        this.currentCommand.fn();
+        this.currentCommand.fn(this.currentCommand);
       }
       this.waitTime = this.currentCommand.wait;
       this.playerInput = this.currentCommand.playerInput;

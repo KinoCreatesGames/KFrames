@@ -130,14 +130,14 @@ SOFTWARE
               _gthis.isCommandUpdating = false;
               _gthis.advanceCommand();
             }
-            _gthis.currentCommand.fn();
+            _gthis.currentCommand.fn(_gthis.currentCommand);
             if (_gthis.currentCommand.updateTime > 0) {
               let fh = _gthis.currentCommand;
               fh.updateTime--;
             }
           });
         } else {
-          this.currentCommand.fn();
+          this.currentCommand.fn(this.currentCommand);
         }
         this.waitTime = this.currentCommand.wait;
         this.playerInput = this.currentCommand.playerInput;

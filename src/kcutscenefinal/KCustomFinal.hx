@@ -130,6 +130,7 @@ class KCustomFinal extends Scene_Base {
     towerTop.addLoadListener((towerBm) -> {
       sceneBgTwo.bitmap = towerBm;
     });
+    sceneBgTwo.visible = false;
   }
 
   public function createCharacters() {
@@ -172,10 +173,6 @@ class KCustomFinal extends Scene_Base {
       haley.y = floorY - haley.height;
       yula.x = Graphics.width / 2;
       haley.x = (yula.x - haley.width) - 20;
-      this.addChild(yula);
-      this.addChild(haley);
-      this.addChild(spaceMom);
-      this.addChild(dad);
     }
   }
 
@@ -187,6 +184,12 @@ class KCustomFinal extends Scene_Base {
   }
 
   public function adjustChildren() {
+    this.addChild(this.sceneBg);
+    this.addChild(this.sceneBgTwo);
+    this.addChild(yula);
+    this.addChild(haley);
+    this.addChild(spaceMom);
+    this.addChild(dad);
     this.addChild(this.msgBox);
   }
 
@@ -302,7 +305,86 @@ class KCustomFinal extends Scene_Base {
     The screen slowly fades to white.
 
    */
-  public function addPtOne() {}
+  public function addPtOne() {
+    this.interpreter.addCommand({
+      fn: () -> {
+        AudioManager.playBgm({
+          name: 'JDSherbert - Stargazer OST - Celestial Texture',
+          pos: 0,
+          pan: 0,
+          volume: 50,
+          pitch: 100
+        });
+      }
+    });
+    sendMsg('...Where am I?', yula);
+    // Yula Mom Fade In Here
+    sendMsg('You\'ve finally made it my dear.', spaceMom);
+    sendMsg('You! You\'re the one from the balncony, and the tower!', yula);
+    sendMsg('Of course it\'s me...don\'t you recognize your own Mother?',
+      spaceMom);
+    sendMsg('M-my mother? But, how? You\'re not human...', spaceMom);
+    sendMsg('That\'s correct! I am a Pleiadian, my child...and so are you.',
+      spaceMom);
+    sendMsg('A Pleiadian?', yula);
+    sendMsg('A sweller of the stars, Yula. We are not from this world.',
+      spaceMom);
+    sendMsg('...', yula);
+    sendMsg('If we\'re not from this world, then...then how am I here?', yula);
+    sendMsg('You\'re here because of a wish, my dear.', spaceMom);
+    // Wait time with blank non showing of message box
+    this.interpreter.addCommand({
+      fn: () -> {
+        msgBox.hide();
+      }
+    });
+    sendMsg('Your father...Every night, he would gaze at the stars and make the same wish.',
+      spaceMom);
+    sendMsg('As I listened for his voice each night, I realized I had the same wish myself',
+      spaceMom);
+    sendMsg('I knew, I couldn\'t stay with your father, but I had enough time to give him something better.',
+      spaceMom);
+    sendMsg('W-what was that?', yula);
+    sendMsg('He wished for a family...', spaceMom);
+    sendMsg('...so I gave him you', spaceMom);
+    sendMsg('I see...', yula);
+    sendMsg('But mom, why couldn\'t you stay with us?', yula);
+    sendMsg('...Pleiadians cannot live on earth without becoming ill. I couldn\'t bring myself to tell you both, so I returned in secret.',
+      spaceMom);
+    sendMsg('Don\'t you know how much me worried about you? How much I missed you...',
+      yula);
+    sendMsg('I\'m so sorry, Yula... I am...', spaceMom);
+    sendMsg('But everything is okay now! Once we make it to my nebula, we can start over. Together.',
+      spaceMom);
+    sendMsg('I...', yula);
+    sendMsg('I\'m sorry mom. I can\'t stay with you...', yula);
+    sendMsg('What?!', spaceMom);
+    sendMsg('I can\'t abandon dad like that! I can\'t abandon my friend!',
+      yula);
+    sendMsg('...', spaceMom);
+    sendMsg('...I... I see.', spaceMom);
+    sendMsg('Mom...', yula);
+    sendMsg('No, it\'s alright, my child', spaceMom);
+    sendMsg('Let\'s get you home', spaceMom);
+    sendMsg('Thank you, Mom!', yula);
+    this.interpreter.addCommand({
+      fn: () -> {
+        // Fade Out set Flag, hide Yula, Mom and stuff
+        spaceMom.visible = false;
+        this.startFadeOut(3, true);
+      }
+    });
+    // Part one ends with Mom fading out and also starting the screen
+    // fade and scene organization
+    sendMsg('I love you,mom... I\'ll miss you', yula);
+    this.interpreter.addCommand({
+      fn: () -> {
+        msgBox.hide();
+        this.startFadeIn(3, true);
+      },
+      wait: secondsToFrames(5)
+    });
+  }
 
   /**
     * Yula: “I love you, mom… I’ll miss you.” 
@@ -350,7 +432,30 @@ class KCustomFinal extends Scene_Base {
     Yula: “Goodbye, mom...” 
 
    */
-  public function addPtTwo() {}
+  public function addPtTwo() {
+    // Fade in started in previous section
+    sendMsg('Sorry, I took so long', yula);
+    sendMsg('Yula... I...', dad);
+    sendMsg('I thought you would never come back!', haley);
+    sendMsg('What? No way! How could I leave my best friend?', yula);
+    sendMsg('I\'m sorry, dad... I missed you, and so does mom', yula);
+    sendMsg('...It\'s alright, sweetie. All that matters is that you\'re back.',
+      dad);
+    sendMsg('How about we get you girls back home? I think we\'ve all had a long night...',
+      dad);
+    // Positioned message box above both people
+    //
+    sendMsg('Goodbye, mom...', yula);
+    this.interpreter.addCommand({
+      fn: () -> {
+        yula.playAnimation('walk', true);
+        yula.translateTo(yula.x - 100, cast yula.y, 0.025);
+      },
+      wait: 30
+    });
+    // Yula starts walking away
+    // Fade out screen here while they walk away
+  }
 
   /**
     * The three continue walking as the screen fades to black.
@@ -377,6 +482,18 @@ class KCustomFinal extends Scene_Base {
     });
   }
 
+  public function sendMsg(msg:String, char:KFrameSprite) {
+    // Sends messages above the characters head
+    // Add it to the command list with player Input
+    this.interpreter.addCommand({
+      fn: () -> {
+        posAbvSpr(char);
+        msgBox.sendMsg(msg);
+      },
+      playerInput: true
+    });
+  }
+
   public function updateInterpreter() {
     this.interpreter.update();
   }
@@ -391,5 +508,12 @@ class KCustomFinal extends Scene_Base {
 
   inline function secondsToFrames(seconds:Int) {
     return seconds * 60;
+  }
+
+  // Positions message box anove the sprite
+  public function posAbvSpr(sprite:KFrameSprite, padding:Int = 16) {
+    var sprMidPoint = (x + sprite.frameWidth * 0.5);
+    this.msgBox.x = sprMidPoint - (this.msgBox.windowWidth * 0.5);
+    this.msgBox.y = (sprite.y) - (this.msgBox.height + padding);
   }
 }
